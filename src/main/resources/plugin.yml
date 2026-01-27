@@ -1,0 +1,6 @@
+name: GuardCore
+version: '${project.version}'
+main: dev.nxms.guardcore.GuardCore
+api-version: '1.21'
+author: nxmsdev
+website: nxms.dev
