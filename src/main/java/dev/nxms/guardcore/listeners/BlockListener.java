@@ -53,13 +53,14 @@ public class BlockListener implements Listener {
                 && plugin.getBypassManager().hasBlockDespawnBypass(player.getUniqueId());
 
         // Sprawdź czy trzeba rejestrować blok
-        boolean needsTrackingForDespawn = config.isBlockDespawnEnabled(worldName);
-        boolean needsTrackingForDestruction = !config.isBlockDestructionAllowed(worldName);
+        boolean despawnEnabled = config.isBlockDespawnEnabled(worldName);
+        boolean destructionDisabled = !config.isBlockDestructionAllowed(worldName);
 
         // Rejestruj blok jeśli potrzebne (despawn lub ochrona przed niszczeniem)
-        if (needsTrackingForDespawn || needsTrackingForDestruction) {
-            // Jeśli gracz ma bypass - oznacz blok jako niezniszczalny przez despawn
-            config.addPlacedBlock(block.getLocation(), player.getUniqueId(), hasDespawnBypass);
+        if (despawnEnabled || destructionDisabled) {
+            // trackForDespawn = true tylko jeśli despawn jest włączony I gracz nie ma bypass
+            boolean trackForDespawn = despawnEnabled && !hasDespawnBypass;
+            config.addPlacedBlock(block.getLocation(), player.getUniqueId(), hasDespawnBypass, trackForDespawn);
         }
     }
 

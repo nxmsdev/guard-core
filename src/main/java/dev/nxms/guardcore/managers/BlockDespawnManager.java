@@ -17,10 +17,7 @@ public class BlockDespawnManager {
     private final ConfigManager config;
     private BukkitTask despawnTask;
 
-    // Jak często sprawdzać bloki (w sekundach)
     private static final int CHECK_INTERVAL_SECONDS = 1;
-
-    // Opóźnienie między usuwaniem kolejnych bloków (w sekundach)
     private static final double DESPAWN_DELAY_SECONDS = 0.25;
 
     public BlockDespawnManager(GuardCore plugin) {
@@ -49,8 +46,8 @@ public class BlockDespawnManager {
             String locationKey = entry.getKey();
             ConfigManager.PlacedBlockData blockData = entry.getValue();
 
-            // Sprawdź czy blok ma bypass - jeśli tak, pomiń
-            if (blockData.hasBypassDespawn()) {
+            // Sprawdź czy blok powinien zniknąć
+            if (!blockData.shouldDespawn()) {
                 continue;
             }
 

@@ -16,7 +16,6 @@ public class ConfigManager {
     private FileConfiguration config;
     private File configFile;
 
-    // Zmieniona struktura: przechowuje też UUID gracza który postawił blok
     private Map<String, PlacedBlockData> placedBlocks;
     private Map<String, UUID> placedFluids;
 
@@ -326,16 +325,23 @@ public class ConfigManager {
         private final long placedTime;
         private final UUID playerUUID;
         private final boolean bypassDespawn;
+        private final boolean trackForDespawn;
 
-        public PlacedBlockData(long placedTime, UUID playerUUID, boolean bypassDespawn) {
+        public PlacedBlockData(long placedTime, UUID playerUUID, boolean bypassDespawn, boolean trackForDespawn) {
             this.placedTime = placedTime;
             this.playerUUID = playerUUID;
             this.bypassDespawn = bypassDespawn;
+            this.trackForDespawn = trackForDespawn;
+        }
+
+        // Konstruktor dla kompatybilności wstecznej
+        public PlacedBlockData(long placedTime, UUID playerUUID, boolean bypassDespawn) {
+            this(placedTime, playerUUID, bypassDespawn, !bypassDespawn);
         }
 
         // Konstruktor dla kompatybilności wstecznej
         public PlacedBlockData(long placedTime, UUID playerUUID) {
-            this(placedTime, playerUUID, false);
+            this(placedTime, playerUUID, false, false);
         }
 
         public long getPlacedTime() {
@@ -349,28 +355,49 @@ public class ConfigManager {
         public boolean hasBypassDespawn() {
             return bypassDespawn;
         }
+
+        public boolean isTrackForDespawn() {
+            return trackForDespawn;
+        }
+
+        /**
+         * Sprawdza czy blok powinien zniknąć.
+         * Blok znika tylko jeśli:
+         * - jest śledzony do znikania (trackForDespawn = true)
+         * - nie ma bypass (bypassDespawn = false)
+         */
+        public boolean shouldDespawn() {
+            return trackForDespawn && !bypassDespawn;
+        }
     }
 
     /**
-     * Dodaje blok do rejestru (z UUID gracza i flagą bypass).
+     * Dodaje blok do rejestru (pełna wersja).
+     */
+    public void addPlacedBlock(Location location, UUID playerUUID, boolean bypassDespawn, boolean trackForDespawn) {
+        String key = locationToKey(location);
+        placedBlocks.put(key, new PlacedBlockData(System.currentTimeMillis(), playerUUID, bypassDespawn, trackForDespawn));
+    }
+
+    /**
+     * Dodaje blok do rejestru (z UUID gracza i flagą bypass, trackForDespawn = !bypassDespawn).
      */
     public void addPlacedBlock(Location location, UUID playerUUID, boolean bypassDespawn) {
-        String key = locationToKey(location);
-        placedBlocks.put(key, new PlacedBlockData(System.currentTimeMillis(), playerUUID, bypassDespawn));
+        addPlacedBlock(location, playerUUID, bypassDespawn, !bypassDespawn);
     }
 
     /**
-     * Dodaje blok do rejestru (z UUID gracza, bez bypass).
+     * Dodaje blok do rejestru (z UUID gracza, bez bypass, bez śledzenia despawn).
      */
     public void addPlacedBlock(Location location, UUID playerUUID) {
-        addPlacedBlock(location, playerUUID, false);
+        addPlacedBlock(location, playerUUID, false, false);
     }
 
     /**
      * Dodaje blok do rejestru (bez UUID - kompatybilność wsteczna).
      */
     public void addPlacedBlock(Location location) {
-        addPlacedBlock(location, null, false);
+        addPlacedBlock(location, null, false, false);
     }
 
     public void removePlacedBlock(Location location) {
@@ -419,6 +446,14 @@ public class ConfigManager {
     }
 
     /**
+     * Sprawdza czy blok powinien zniknąć.
+     */
+    public boolean shouldBlockDespawn(String key) {
+        PlacedBlockData data = placedBlocks.get(key);
+        return data != null && data.shouldDespawn();
+    }
+
+    /**
      * Pobiera dane o postawionym bloku.
      */
     public PlacedBlockData getPlacedBlockData(String key) {
@@ -457,23 +492,23 @@ public class ConfigManager {
             for (String key : section.getKeys(false)) {
                 String actualKey = key.replace(".", ":");
 
-                // Sprawdź czy to nowy format (z UUID) czy stary
                 if (section.isConfigurationSection(key)) {
                     // Nowy format
                     long time = section.getLong(key + ".time");
                     String uuidStr = section.getString(key + ".player");
                     boolean bypassDespawn = section.getBoolean(key + ".bypassDespawn", false);
+                    boolean trackForDespawn = section.getBoolean(key + ".trackForDespawn", false);
                     UUID uuid = null;
                     if (uuidStr != null && !uuidStr.isEmpty()) {
                         try {
                             uuid = UUID.fromString(uuidStr);
                         } catch (IllegalArgumentException ignored) {}
                     }
-                    placedBlocks.put(actualKey, new PlacedBlockData(time, uuid, bypassDespawn));
+                    placedBlocks.put(actualKey, new PlacedBlockData(time, uuid, bypassDespawn, trackForDespawn));
                 } else {
-                    // Stary format (tylko czas)
+                    // Stary format (tylko czas) - nie śledź do despawn
                     long time = section.getLong(key);
-                    placedBlocks.put(actualKey, new PlacedBlockData(time, null, false));
+                    placedBlocks.put(actualKey, new PlacedBlockData(time, null, false, false));
                 }
             }
         }
@@ -488,14 +523,14 @@ public class ConfigManager {
 
             config.set("placedBlocks." + safeKey + ".time", data.getPlacedTime());
             config.set("placedBlocks." + safeKey + ".bypassDespawn", data.hasBypassDespawn());
+            config.set("placedBlocks." + safeKey + ".trackForDespawn", data.isTrackForDespawn());
             if (data.getPlayerUUID() != null) {
                 config.set("placedBlocks." + safeKey + ".player", data.getPlayerUUID().toString());
             }
         }
     }
-// Dodaj te metody na końcu klasy, przed ostatnim }:
 
-// ===== PLACED FLUIDS TRACKING =====
+    // ===== PLACED FLUIDS TRACKING =====
 
     /**
      * Dodaje płyn do rejestru.
