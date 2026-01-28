@@ -5,20 +5,20 @@ import dev.nxms.guardcore.config.ConfigManager;
 import dev.nxms.guardcore.config.MessageManager;
 import dev.nxms.guardcore.managers.EntityLimitManager;
 import dev.nxms.guardcore.managers.EntitySpawnTimeManager;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerEggThrowEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.SpawnEggMeta;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.event.block.Action;
 
 public class EntityListener implements Listener {
 
@@ -66,7 +66,8 @@ public class EntityListener implements Listener {
         }
 
         // Sprawdź czas spawnu (nie dotyczy jajek spawn - to obsługujemy osobno)
-        if (reason != CreatureSpawnEvent.SpawnReason.SPAWNER_EGG) {
+        if (reason != CreatureSpawnEvent.SpawnReason.SPAWNER_EGG &&
+                reason != CreatureSpawnEvent.SpawnReason.EGG) {
             if (!spawnTimeManager.canSpawnAtCurrentTime(worldName, entityType)) {
                 event.setCancelled(true);
                 return;
@@ -86,6 +87,45 @@ public class EntityListener implements Listener {
         // Sprawdź czy entity jest na liście zakazanych
         if (config.isEntityDisallowed(worldName, entityName)) {
             event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onEggThrow(PlayerEggThrowEvent event) {
+        Player player = event.getPlayer();
+        World world = player.getWorld();
+        String worldName = world.getName();
+
+        // Sprawdź czy gracz ma uprawnienia admina
+        if (player.hasPermission("guardcore.admin")) {
+            return;
+        }
+
+        // Sprawdź czy kura jest na liście zakazanych
+        if (config.isEntityDisallowed(worldName, "CHICKEN")) {
+            event.setHatching(false);
+            messages.send(player, "entity-spawn-blocked", MessageManager.placeholders(
+                    "entity", "CHICKEN"
+            ));
+            return;
+        }
+
+        // Sprawdź limit kur
+        if (!limitManager.canSpawnEntity(world, EntityType.CHICKEN)) {
+            event.setHatching(false);
+            messages.send(player, "entity-limit-reached", MessageManager.placeholders(
+                    "entity", "CHICKEN"
+            ));
+            return;
+        }
+
+        // Sprawdź czas spawnu kur
+        if (!spawnTimeManager.canSpawnAtCurrentTime(worldName, EntityType.CHICKEN)) {
+            event.setHatching(false);
+            messages.send(player, "entity-spawn-time-blocked", MessageManager.placeholders(
+                    "entity", "CHICKEN"
+            ));
+            return;
         }
     }
 
@@ -158,7 +198,6 @@ public class EntityListener implements Listener {
     private EntityType getEntityTypeFromSpawnEgg(Material material) {
         String materialName = material.name();
 
-        // Usuń "_SPAWN_EGG" z końca
         if (!materialName.endsWith("_SPAWN_EGG")) {
             return null;
         }
@@ -168,7 +207,6 @@ public class EntityListener implements Listener {
         try {
             return EntityType.valueOf(entityName);
         } catch (IllegalArgumentException e) {
-            // Niektóre nazwy mogą się różnić
             switch (entityName) {
                 case "MOOSHROOM":
                     return EntityType.MOOSHROOM;
