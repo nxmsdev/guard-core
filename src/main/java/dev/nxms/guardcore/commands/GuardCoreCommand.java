@@ -8,7 +8,6 @@ import dev.nxms.guardcore.utils.TimeParser;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -387,12 +386,12 @@ public class GuardCoreCommand implements CommandExecutor {
             return;
         }
 
-        boolean protection = Boolean.parseBoolean(value);
-        config.setBlockDestructionProtected(worldName, protection);
+        boolean allowed = Boolean.parseBoolean(value);
+        config.setBlockDestructionAllowed(worldName, allowed);
 
         messages.send(sender, "blockdestruction-set", MessageManager.placeholders(
                 "world", worldName,
-                "status", messages.getBooleanDisplay(protection)
+                "status", messages.getBooleanDisplay(allowed)
         ));
     }
 
@@ -964,11 +963,11 @@ public class GuardCoreCommand implements CommandExecutor {
             return;
         }
 
-        boolean protection = config.isBlockDestructionProtected(worldName);
+        boolean allowed = config.isBlockDestructionAllowed(worldName);
 
         messages.send(sender, "blockdestruction-info", MessageManager.placeholders(
                 "world", worldName,
-                "status", messages.getBooleanDisplay(protection)
+                "status", messages.getBooleanDisplay(allowed)
         ));
     }
 

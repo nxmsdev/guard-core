@@ -39,8 +39,8 @@ public class BlockListener implements Listener {
             return;
         }
 
-        // Rejestruj blok TYLKO jeśli blockDespawn jest włączony
-        if (config.isBlockDespawnEnabled(worldName)) {
+        // Rejestruj blok TYLKO jeśli blockDespawn jest włączony LUB blockDestruction jest wyłączony
+        if (config.isBlockDespawnEnabled(worldName) || !config.isBlockDestructionAllowed(worldName)) {
             config.addPlacedBlock(block.getLocation());
         }
     }
@@ -52,9 +52,12 @@ public class BlockListener implements Listener {
         Location location = block.getLocation();
         String worldName = block.getWorld().getName();
 
-        // Sprawdź czy ochrona bloków jest włączona
-        if (config.isBlockDestructionProtected(worldName)) {
+        // Sprawdź czy niszczenie bloków jest dozwolone
+        // false = tylko bloki postawione przez graczy mogą być niszczone
+        if (!config.isBlockDestructionAllowed(worldName)) {
+            // Sprawdź czy blok był postawiony przez gracza
             if (!config.isBlockPlacedByPlayer(location)) {
+                // Sprawdź czy gracz ma uprawnienia admina
                 if (!player.hasPermission("guardcore.admin")) {
                     event.setCancelled(true);
                     messages.send(player, "blockdestruction-prevented");

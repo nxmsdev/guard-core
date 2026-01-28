@@ -63,7 +63,7 @@ public class ConfigManager {
             config.set("worlds." + worldName + ".waterFlow", true);
             config.set("worlds." + worldName + ".lavaFlow", true);
             config.set("worlds." + worldName + ".blockRedstoneMechanism", false);
-            config.set("worlds." + worldName + ".blockDestruction", false);
+            config.set("worlds." + worldName + ".blockDestruction", true);
             saveConfig();
         }
     }
@@ -130,15 +130,17 @@ public class ConfigManager {
     }
 
     // Block Destruction methods
+    // true = można niszczyć wszystkie bloki
+    // false = można niszczyć tylko bloki postawione przez graczy
 
-    public boolean isBlockDestructionProtected(String worldName) {
+    public boolean isBlockDestructionAllowed(String worldName) {
         ensureWorldSection(worldName);
-        return config.getBoolean("worlds." + worldName + ".blockDestruction", false);
+        return config.getBoolean("worlds." + worldName + ".blockDestruction", true);
     }
 
-    public void setBlockDestructionProtected(String worldName, boolean protection) {
+    public void setBlockDestructionAllowed(String worldName, boolean allowed) {
         ensureWorldSection(worldName);
-        config.set("worlds." + worldName + ".blockDestruction", protection);
+        config.set("worlds." + worldName + ".blockDestruction", allowed);
         saveConfig();
     }
 
@@ -321,7 +323,6 @@ public class ConfigManager {
     public void addPlacedBlock(Location location) {
         String key = locationToKey(location);
         placedBlocks.put(key, System.currentTimeMillis());
-        plugin.getLogger().info("Block placed at " + key + " (total: " + placedBlocks.size() + ")");
     }
 
     public void removePlacedBlock(Location location) {
