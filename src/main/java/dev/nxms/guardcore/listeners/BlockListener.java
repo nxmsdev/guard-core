@@ -75,8 +75,8 @@ public class BlockListener implements Listener {
             boolean hasDestructionBypass = player.hasPermission("guardcore.bypass")
                     && plugin.getBypassManager().hasBlockDestructionBypass(player.getUniqueId());
 
-            // Jeśli gracz ma bypass lub uprawnienia admina - pozwól niszczyć
-            if (hasDestructionBypass || player.hasPermission("guardcore.admin")) {
+            // Jeśli gracz ma bypass - pozwól niszczyć
+            if (hasDestructionBypass) {
                 // Pozwól na zniszczenie
             } else {
                 // Sprawdź czy blok był postawiony przez gracza
