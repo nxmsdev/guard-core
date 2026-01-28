@@ -96,6 +96,13 @@ public class GuardCoreTabCompleter implements TabCompleter {
             "1", "5", "10", "25", "50", "100", "250", "500"
     );
 
+    private static final List<String> SPAWN_POINT_NAME_EXAMPLES = Arrays.asList(
+            "spawn1", "spawn2", "spawn3",
+            "point1", "point2", "point3",
+            "zombie_spawn", "skeleton_spawn", "creeper_spawn",
+            "north", "south", "east", "west", "center"
+    );
+
     public GuardCoreTabCompleter(GuardCore plugin) {
         this.plugin = plugin;
     }
@@ -122,7 +129,7 @@ public class GuardCoreTabCompleter implements TabCompleter {
                 completions = getFourthArguments(sender, args[0], args[1], args[2]);
                 break;
             case 5:
-                completions = getFifthArguments(sender, args[0], args[1]);
+                completions = getFifthArguments(sender, args[0], args[1], args[2]);
                 break;
             case 6:
                 completions = getSixthArguments(sender, args[0], args[1]);
@@ -288,12 +295,20 @@ public class GuardCoreTabCompleter implements TabCompleter {
         return new ArrayList<>();
     }
 
-    private List<String> getFifthArguments(CommandSender sender, String firstArg, String secondArg) {
+    private List<String> getFifthArguments(CommandSender sender, String firstArg, String secondArg, String thirdArg) {
         String action = firstArg.toLowerCase();
         String setting = secondArg.toLowerCase();
 
         if (action.equals("add") && setting.equals("entitylimit")) {
             return new ArrayList<>(LIMIT_EXAMPLES);
+        }
+
+        if (action.equals("add") && setting.equals("entityspawnpoint")) {
+            // Pokaż przykładowe nazwy spawn pointów oraz istniejące
+            List<String> suggestions = new ArrayList<>(SPAWN_POINT_NAME_EXAMPLES);
+            // Dodaj istniejące nazwy spawn pointów z tego świata
+            suggestions.addAll(getSpawnPointNames(thirdArg));
+            return suggestions;
         }
 
         if (action.equals("set") && setting.equals("entityspawntime")) {
