@@ -36,7 +36,7 @@ public class GuardCore extends JavaPlugin {
         // Rejestracja listener-ów
         registerListeners();
 
-        getLogger().info("GuardCore has been enabled!");
+        getLogger().info("GuardCore has been enabled.");
     }
 
     @Override
@@ -59,7 +59,7 @@ public class GuardCore extends JavaPlugin {
             getLogger().info("Cleared all bypasses successfully.");
         }
 
-        getLogger().info("GuardCore has been disabled!");
+        getLogger().info("GuardCore has been disabled.");
     }
 
     /**
