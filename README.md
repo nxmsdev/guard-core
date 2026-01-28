@@ -106,8 +106,9 @@ Main commands: /guardcore or /gc
 ### Language Selection
 
 In config.yml:
-
+```
 language: pl   # or en
+```
 
 ### Time Format
 
