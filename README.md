@@ -156,9 +156,9 @@ disallowedBlocks:
 
 The bypass system allows administrators to temporarily override restrictions:
 
-- **Bypass is disabled by default** for all features
-- Bypass settings are **per-player** and stored in memory
-- Bypass settings are **cleared on player quit** and server restart
+- Bypass is disabled by default for all features
+- Bypass settings are per-player and stored in memory
+- Bypass settings are cleared on player quit and server restart
 - Blocks placed with bypass enabled maintain their bypass status (saved to config)
 
 ### Bypass Behavior
@@ -173,8 +173,8 @@ The bypass system allows administrators to temporarily override restrictions:
 
 ## Other
 
-Author: @nxmsdev (https://github.com/nxmsdev)
+Author: [nxmsdev](https://github.com/nxmsdev)
 
-Website: www.nxms.dev (https://www.nxms.dev)
+Website: [nxms.dev](https://www.nxms.dev)
 
-License: MIT (https://choosealicense.com/licenses/mit/)
+License: [MIT](https://choosealicense.com/licenses/mit/)
