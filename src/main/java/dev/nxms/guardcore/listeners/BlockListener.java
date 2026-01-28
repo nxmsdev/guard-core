@@ -71,10 +71,16 @@ public class BlockListener implements Listener {
         // Sprawdź czy niszczenie bloków jest dozwolone
         // false = tylko bloki postawione przez graczy mogą być niszczone
         if (!config.isBlockDestructionAllowed(worldName)) {
-            // Sprawdź czy blok był postawiony przez gracza
-            if (!config.isBlockPlacedByPlayer(location)) {
-                // Sprawdź czy gracz ma uprawnienia admina
-                if (!player.hasPermission("guardcore.admin")) {
+            // Sprawdź czy gracz ma bypass na niszczenie bloków
+            boolean hasDestructionBypass = player.hasPermission("guardcore.bypass")
+                    && plugin.getBypassManager().hasBlockDestructionBypass(player.getUniqueId());
+
+            // Jeśli gracz ma bypass lub uprawnienia admina - pozwól niszczyć
+            if (hasDestructionBypass || player.hasPermission("guardcore.admin")) {
+                // Pozwól na zniszczenie
+            } else {
+                // Sprawdź czy blok był postawiony przez gracza
+                if (!config.isBlockPlacedByPlayer(location)) {
                     event.setCancelled(true);
                     messages.send(player, "blockdestruction-prevented");
                     return;

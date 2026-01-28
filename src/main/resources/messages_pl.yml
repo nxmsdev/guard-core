@@ -78,18 +78,21 @@ blockdestruction-set: "&aZmieniono ochronę bloków na świecie &e{world} &ana &
 blockdestruction-info: "&7Ochrona bloków (tylko postawione przez graczy mogą być niszczone) na świecie &e{world}&7: &e{status}"
 blockdestruction-prevented: "&cNie możesz zniszczyć tego bloku - nie został postawiony przez gracza!"
 
-# Bypass messages (zamień poprzednie)
+# Bypass messages
 player-only-command: "&cTa komenda może być użyta tylko przez gracza!"
 bypass-disallowedblocks-set: "&aBypass zakazanych bloków: &e{status}"
 bypass-blockdespawn-set: "&aBypass znikania bloków: &e{status}"
+bypass-blockdestruction-set: "&aBypass niszczenia bloków: &e{status}"
 bypass-info: |
   &6&lGuardCore &7- Bypass
   &7Bypass zakazanych bloków: &e{disallowedblocks_status}
   &7Bypass znikania bloków: &e{blockdespawn_status}
+  &7Bypass niszczenia bloków: &e{blockdestruction_status}
   &7
   &7Użycie:
   &e/gc bypass disallowedBlocks [true/false]
   &e/gc bypass blockDespawn [true/false]
+  &e/gc bypass blockDestruction [true/false]
 
 # Help messages
 help-header: "&6&lGuardCore &7- Lista komend:"
@@ -196,6 +199,8 @@ help-bypass: |
   &7Włącza/wyłącza bypass na stawianie zakazanych bloków.
   &6/guardcore bypass blockDespawn [true/false]
   &7Włącza/wyłącza bypass na znikanie bloków.
+  &6/guardcore bypass blockDestruction [true/false]
+  &7Włącza/wyłącza bypass na niszczenie wszystkich bloków.
   &7Wymaga uprawnienia: &eguardcore.bypass
   &7Bypass jest domyślnie wyłączony.
 

@@ -78,18 +78,22 @@ blockdestruction-set: "&aChanged block protection in world &e{world} &ato &e{sta
 blockdestruction-info: "&7Block protection (only player-placed blocks can be destroyed) in world &e{world}&7: &e{status}"
 blockdestruction-prevented: "&cYou cannot break this block - it was not placed by a player!"
 
-# Bypass messages (replace previous)
+# Bypass messages
 player-only-command: "&cThis command can only be used by players!"
 bypass-disallowedblocks-set: "&aDisallowed blocks bypass: &e{status}"
 bypass-blockdespawn-set: "&aBlock despawn bypass: &e{status}"
+bypass-blockdestruction-set: "&aBlock destruction bypass: &e{status}"
 bypass-info: |
   &6&lGuardCore &7- Bypass
   &7Disallowed blocks bypass: &e{disallowedblocks_status}
   &7Block despawn bypass: &e{blockdespawn_status}
+  &7Block destruction bypass: &e{blockdestruction_status}
   &7
   &7Usage:
   &e/gc bypass disallowedBlocks [true/false]
   &e/gc bypass blockDespawn [true/false]
+  &e/gc bypass blockDestruction [true/false]
+
 
 # Help messages
 help-header: "&6&lGuardCore &7- Command list:"
@@ -196,6 +200,8 @@ help-bypass: |
   &7Enables/disables bypass for placing disallowed blocks.
   &6/guardcore bypass blockDespawn [true/false]
   &7Enables/disables bypass for block despawn.
+  &6/guardcore bypass blockDestruction [true/false]
+  &7Enables/disables bypass for destroying all blocks.
   &7Requires permission: &eguardcore.bypass
   &7Bypass is disabled by default.
 

@@ -11,6 +11,7 @@ public class BypassManager {
 
     private final Map<UUID, Boolean> disallowedBlocksBypass = new HashMap<>();
     private final Map<UUID, Boolean> blockDespawnBypass = new HashMap<>();
+    private final Map<UUID, Boolean> blockDestructionBypass = new HashMap<>();
 
     // ===== DISALLOWED BLOCKS BYPASS =====
 
@@ -72,6 +73,36 @@ public class BypassManager {
         return newState;
     }
 
+    // ===== BLOCK DESTRUCTION BYPASS =====
+
+    /**
+     * Sprawdza czy gracz ma włączony bypass na niszczenie bloków.
+     */
+    public boolean hasBlockDestructionBypass(UUID uuid) {
+        return blockDestructionBypass.getOrDefault(uuid, false);
+    }
+
+    /**
+     * Ustawia bypass na niszczenie bloków dla gracza.
+     */
+    public void setBlockDestructionBypass(UUID uuid, boolean enabled) {
+        if (enabled) {
+            blockDestructionBypass.put(uuid, true);
+        } else {
+            blockDestructionBypass.remove(uuid);
+        }
+    }
+
+    /**
+     * Przełącza bypass niszczenia bloków dla gracza.
+     * @return nowy stan bypass
+     */
+    public boolean toggleBlockDestructionBypass(UUID uuid) {
+        boolean newState = !hasBlockDestructionBypass(uuid);
+        setBlockDestructionBypass(uuid, newState);
+        return newState;
+    }
+
     // ===== COMMON =====
 
     /**
@@ -80,6 +111,7 @@ public class BypassManager {
     public void removePlayer(UUID uuid) {
         disallowedBlocksBypass.remove(uuid);
         blockDespawnBypass.remove(uuid);
+        blockDestructionBypass.remove(uuid);
     }
 
     /**
@@ -88,5 +120,6 @@ public class BypassManager {
     public void clearAll() {
         disallowedBlocksBypass.clear();
         blockDespawnBypass.clear();
+        blockDestructionBypass.clear();
     }
 }

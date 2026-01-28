@@ -46,7 +46,8 @@ public class GuardCoreTabCompleter implements TabCompleter {
 
     private static final List<String> BYPASS_TYPES = Arrays.asList(
             "disallowedBlocks",
-            "blockDespawn"
+            "blockDespawn",
+            "blockDestruction"
     );
 
     private static final List<String> BOOLEAN_VALUES = Arrays.asList("true", "false");
@@ -203,9 +204,12 @@ public class GuardCoreTabCompleter implements TabCompleter {
             return getWorldNames();
         }
 
-        // bypass disallowedBlocks <true/false>
-        if (action.equals("bypass") && secondArg.equalsIgnoreCase("disallowedBlocks")) {
-            return new ArrayList<>(BOOLEAN_VALUES);
+        // bypass <type> <true/false>
+        if (action.equals("bypass")) {
+            String bypassType = secondArg.toLowerCase();
+            if (BYPASS_TYPES.stream().anyMatch(type -> type.equalsIgnoreCase(bypassType))) {
+                return new ArrayList<>(BOOLEAN_VALUES);
+            }
         }
 
         return new ArrayList<>();

@@ -102,6 +102,9 @@ public class GuardCoreCommand implements CommandExecutor {
             case "blockdespawn":
                 handleBypassBlockDespawn(player, args);
                 break;
+            case "blockdestruction":
+                handleBypassBlockDestruction(player, args);
+                break;
             default:
                 handleBypassHelp(player);
                 break;
@@ -172,13 +175,47 @@ public class GuardCoreCommand implements CommandExecutor {
                 MessageManager.placeholders("status", messages.getBooleanDisplay(newState)));
     }
 
+    private void handleBypassBlockDestruction(Player player, String[] args) {
+        boolean newState;
+
+        if (args.length < 3) {
+            // Toggle
+            newState = plugin.getBypassManager().toggleBlockDestructionBypass(player.getUniqueId());
+        } else {
+            String value = args[2].toLowerCase();
+            switch (value) {
+                case "true":
+                case "on":
+                case "tak":
+                case "1":
+                    newState = true;
+                    break;
+                case "false":
+                case "off":
+                case "nie":
+                case "0":
+                    newState = false;
+                    break;
+                default:
+                    messages.send(player, "invalid-boolean");
+                    return;
+            }
+            plugin.getBypassManager().setBlockDestructionBypass(player.getUniqueId(), newState);
+        }
+
+        messages.send(player, "bypass-blockdestruction-set",
+                MessageManager.placeholders("status", messages.getBooleanDisplay(newState)));
+    }
+
     private void handleBypassHelp(Player player) {
         boolean disallowedBlocksStatus = plugin.getBypassManager().hasDisallowedBlocksBypass(player.getUniqueId());
         boolean blockDespawnStatus = plugin.getBypassManager().hasBlockDespawnBypass(player.getUniqueId());
+        boolean blockDestructionStatus = plugin.getBypassManager().hasBlockDestructionBypass(player.getUniqueId());
 
         messages.send(player, "bypass-info", MessageManager.placeholders(
                 "disallowedblocks_status", messages.getBooleanDisplay(disallowedBlocksStatus),
-                "blockdespawn_status", messages.getBooleanDisplay(blockDespawnStatus)
+                "blockdespawn_status", messages.getBooleanDisplay(blockDespawnStatus),
+                "blockdestruction_status", messages.getBooleanDisplay(blockDestructionStatus)
         ));
     }
 
