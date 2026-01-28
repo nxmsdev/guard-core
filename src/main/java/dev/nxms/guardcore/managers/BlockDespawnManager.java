@@ -29,7 +29,7 @@ public class BlockDespawnManager {
     private void startDespawnTask() {
         long intervalTicks = CHECK_INTERVAL_SECONDS * 20L;
         despawnTask = Bukkit.getScheduler().runTaskTimer(plugin, this::checkBlocksForDespawn, intervalTicks, intervalTicks);
-        plugin.getLogger().info("Block despawn task started (checking every " + CHECK_INTERVAL_SECONDS + " second(s))");
+        plugin.getLogger().info("Block despawn task started. Checking every " + CHECK_INTERVAL_SECONDS + " second(s)");
     }
 
     private void checkBlocksForDespawn() {
@@ -125,12 +125,16 @@ public class BlockDespawnManager {
         if (despawnTask != null) {
             despawnTask.cancel();
             despawnTask = null;
+
+            plugin.getLogger().info("Block Despawn Manager has shut down.");
         }
     }
 
     public void reload() {
         shutdown();
         startDespawnTask();
+
+        plugin.getLogger().info("Block Despawn Manager has been reloaded.");
     }
 
     private static class BlockToDespawn {

@@ -8,9 +8,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,26 +37,36 @@ public class MessageManager {
 
         // Zapisz domyślne pliki wiadomości jeśli nie istnieją
         if (!new File(plugin.getDataFolder(), "messages_pl.yml").exists()) {
+            plugin.getLogger().warning("Couldn't find messages_pl.yml file! Creating new messages file.");
+
             plugin.saveResource("messages_pl.yml", false);
         }
         if (!new File(plugin.getDataFolder(), "messages_en.yml").exists()) {
+            plugin.getLogger().warning("Couldn't find messages_en.yml file! Creating new messages file.");
+
             plugin.saveResource("messages_en.yml", false);
         }
 
         if (!messagesFile.exists()) {
-            plugin.getLogger().warning("Messages file " + fileName + " not found, using messages_pl.yml");
+            plugin.getLogger().warning("Messages file " + fileName + " not found! Using messages_pl.yml.");
             messagesFile = new File(plugin.getDataFolder(), "messages_pl.yml");
         }
 
         messages = YamlConfiguration.loadConfiguration(messagesFile);
         prefix = messages.getString("prefix", "&8[&6GuardCore&8] ");
+
+        plugin.getLogger().info("Messages file has been loaded.");
     }
 
     /**
      * Przeładowuje wiadomości.
      */
     public void reload() {
+        plugin.getLogger().info("Reloading messages.");
+
         loadMessages();
+
+        plugin.getLogger().info("Messaegs has been reloaded.");
     }
 
     /**

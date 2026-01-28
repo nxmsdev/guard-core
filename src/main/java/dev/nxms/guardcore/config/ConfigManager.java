@@ -30,20 +30,28 @@ public class ConfigManager {
         configFile = new File(plugin.getDataFolder(), "config.yml");
 
         if (!configFile.exists()) {
+            plugin.getLogger().warning("Couldn't find configuration file! Creating new config.yml file.");
             plugin.saveResource("config.yml", false);
         }
 
         config = YamlConfiguration.loadConfiguration(configFile);
         loadPlacedBlocks();
+
+        plugin.getLogger().info("Configuration file has been loaded.");
     }
 
     public void reloadConfig() {
+        plugin.getLogger().info("Reloading configuration file.");
+
         config = YamlConfiguration.loadConfiguration(configFile);
         loadPlacedBlocks();
+
+        plugin.getLogger().info("Configuration has been reloaded.");
     }
 
     public void saveConfig() {
         try {
+            plugin.getLogger().info("Saving config.yml");
             savePlacedBlocks();
             config.save(configFile);
         } catch (IOException e) {
@@ -512,7 +520,7 @@ public class ConfigManager {
                 }
             }
         }
-        plugin.getLogger().info("Loaded " + placedBlocks.size() + " placed blocks from config");
+        plugin.getLogger().info("Loaded " + placedBlocks.size() + " placed blocks from config.");
     }
 
     private void savePlacedBlocks() {

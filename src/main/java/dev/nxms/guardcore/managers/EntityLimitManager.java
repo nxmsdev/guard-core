@@ -3,10 +3,7 @@ package dev.nxms.guardcore.managers;
 import dev.nxms.guardcore.GuardCore;
 import dev.nxms.guardcore.config.ConfigManager;
 import org.bukkit.World;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-
-import java.util.Map;
 
 /**
  * Zarządza limitami entity na świecie.

@@ -126,6 +126,8 @@ public class EntitySpawnPointManager {
     public void shutdown() {
         if (spawnTask != null) {
             spawnTask.cancel();
+
+            plugin.getLogger().info("Entity Spawn Point Manager has shut down.");
         }
     }
 
@@ -135,5 +137,6 @@ public class EntitySpawnPointManager {
     public void reload() {
         shutdown();
         startSpawnTask();
+        plugin.getLogger().info("Entity Spawn Point Manager has been reloaded.");
     }
 }

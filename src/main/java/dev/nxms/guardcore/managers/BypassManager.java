@@ -1,5 +1,7 @@
 package dev.nxms.guardcore.managers;
 
+import dev.nxms.guardcore.GuardCore;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -9,6 +11,7 @@ import java.util.UUID;
  */
 public class BypassManager {
 
+    private GuardCore plugin;
     private final Map<UUID, Boolean> disallowedBlocksBypass = new HashMap<>();
     private final Map<UUID, Boolean> blockDespawnBypass = new HashMap<>();
     private final Map<UUID, Boolean> blockDestructionBypass = new HashMap<>();
@@ -187,5 +190,7 @@ public class BypassManager {
         blockDestructionBypass.clear();
         waterFlowBypass.clear();
         lavaFlowBypass.clear();
+
+        plugin.getLogger().info("All bypasses ahs been cleared.");
     }
 }

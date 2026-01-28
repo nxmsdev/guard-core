@@ -33,7 +33,7 @@ public class GuardCore extends JavaPlugin {
         // Rejestracja komend
         registerCommands();
 
-        // Rejestracja listenerów
+        // Rejestracja listener-ów
         registerListeners();
 
         getLogger().info("GuardCore has been enabled!");
@@ -44,16 +44,19 @@ public class GuardCore extends JavaPlugin {
         // Zapisanie konfiguracji przed wyłączeniem
         if (configManager != null) {
             configManager.saveConfig();
+            getLogger().info("Plugin configuration has been saved successfully.");
         }
 
-        // Zatrzymanie zadań despawnu bloków
+        // Zatrzymanie zadań despawn-u bloków
         if (blockDespawnManager != null) {
             blockDespawnManager.shutdown();
+            getLogger().info("Block Despawn Manager has shutdown successfully.");
         }
 
         // Wyczyść bypassy
         if (bypassManager != null) {
             bypassManager.clearAll();
+            getLogger().info("Cleared all bypasses successfully.");
         }
 
         getLogger().info("GuardCore has been disabled!");
@@ -70,6 +73,8 @@ public class GuardCore extends JavaPlugin {
         entitySpawnTimeManager = new EntitySpawnTimeManager(this);
         entitySpawnPointManager = new EntitySpawnPointManager(this);
         bypassManager = new BypassManager();
+
+        getLogger().info("Managers has been initialized successfully.");
     }
 
     /**
@@ -81,6 +86,8 @@ public class GuardCore extends JavaPlugin {
 
         getCommand("guardcore").setExecutor(commandExecutor);
         getCommand("guardcore").setTabCompleter(tabCompleter);
+
+        getLogger().info("All commands has been registered successfully");
     }
 
     /**
@@ -92,6 +99,8 @@ public class GuardCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new FluidListener(this), this);
         getServer().getPluginManager().registerEvents(new RedstoneListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
+
+        getLogger().info("All listeners has been initialized successfully.");
     }
 
     /**
@@ -102,6 +111,8 @@ public class GuardCore extends JavaPlugin {
         messageManager.reload();
         blockDespawnManager.reload();
         entitySpawnPointManager.reload();
+
+        getLogger().info("GuardCore plugin has been reloaded.");
     }
 
     /**
