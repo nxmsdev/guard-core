@@ -3,7 +3,7 @@ version: ${project.version}
 main: dev.nxms.guardcore.GuardCore
 api-version: '1.21'
 author: nxmsdev
-website: www.nxms.dev
+website: https://www.nxms.dev
 description: Advanced world protection and modification plugin
 
 commands:

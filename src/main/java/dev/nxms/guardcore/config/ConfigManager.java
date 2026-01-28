@@ -2,27 +2,22 @@ package dev.nxms.guardcore.config;
 
 import dev.nxms.guardcore.GuardCore;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.EntityType;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-/**
- * Zarządza konfiguracją pluginu.
- * Odpowiada za odczyt, zapis i modyfikację ustawień dla poszczególnych światów.
- */
 public class ConfigManager {
 
     private final GuardCore plugin;
     private FileConfiguration config;
     private File configFile;
-
-    // Cache dla postawionych bloków (świat:x:y:z -> timestamp)
     private Map<String, Long> placedBlocks;
 
     public ConfigManager(GuardCore plugin) {
@@ -31,9 +26,6 @@ public class ConfigManager {
         loadConfig();
     }
 
-    /**
-     * Ładuje konfigurację z pliku.
-     */
     public void loadConfig() {
         configFile = new File(plugin.getDataFolder(), "config.yml");
 
@@ -45,17 +37,11 @@ public class ConfigManager {
         loadPlacedBlocks();
     }
 
-    /**
-     * Przeładowuje konfigurację.
-     */
     public void reloadConfig() {
         config = YamlConfiguration.loadConfiguration(configFile);
         loadPlacedBlocks();
     }
 
-    /**
-     * Zapisuje konfigurację do pliku.
-     */
     public void saveConfig() {
         try {
             savePlacedBlocks();
@@ -65,16 +51,10 @@ public class ConfigManager {
         }
     }
 
-    /**
-     * Zwraca ustawiony język.
-     */
     public String getLanguage() {
         return config.getString("language", "pl");
     }
 
-    /**
-     * Zapewnia istnienie sekcji konfiguracji dla danego świata.
-     */
     private void ensureWorldSection(String worldName) {
         if (!config.contains("worlds." + worldName)) {
             config.createSection("worlds." + worldName);
@@ -338,41 +318,31 @@ public class ConfigManager {
 
     // Placed Blocks tracking
 
-    /**
-     * Rejestruje blok postawiony przez gracza.
-     */
     public void addPlacedBlock(Location location) {
         String key = locationToKey(location);
         placedBlocks.put(key, System.currentTimeMillis());
+        plugin.getLogger().info("Block placed at " + key + " (total: " + placedBlocks.size() + ")");
     }
 
-    /**
-     * Usuwa blok z rejestru postawionych bloków.
-     */
     public void removePlacedBlock(Location location) {
         String key = locationToKey(location);
         placedBlocks.remove(key);
     }
 
-    /**
-     * Sprawdza czy blok został postawiony przez gracza.
-     */
+    public void removePlacedBlockByKey(String key) {
+        placedBlocks.remove(key);
+    }
+
     public boolean isBlockPlacedByPlayer(Location location) {
         String key = locationToKey(location);
         return placedBlocks.containsKey(key);
     }
 
-    /**
-     * Zwraca timestamp postawienia bloku.
-     */
     public long getBlockPlacedTime(Location location) {
         String key = locationToKey(location);
         return placedBlocks.getOrDefault(key, -1L);
     }
 
-    /**
-     * Zwraca wszystkie postawione bloki.
-     */
     public Map<String, Long> getPlacedBlocks() {
         return new HashMap<>(placedBlocks);
     }
@@ -389,15 +359,18 @@ public class ConfigManager {
         ConfigurationSection section = config.getConfigurationSection("placedBlocks");
         if (section != null) {
             for (String key : section.getKeys(false)) {
-                placedBlocks.put(key, section.getLong(key));
+                String actualKey = key.replace(".", ":");
+                placedBlocks.put(actualKey, section.getLong(key));
             }
         }
+        plugin.getLogger().info("Loaded " + placedBlocks.size() + " placed blocks from config");
     }
 
     private void savePlacedBlocks() {
         config.set("placedBlocks", null);
         for (Map.Entry<String, Long> entry : placedBlocks.entrySet()) {
-            config.set("placedBlocks." + entry.getKey(), entry.getValue());
+            String safeKey = entry.getKey().replace(":", ".");
+            config.set("placedBlocks." + safeKey, entry.getValue());
         }
     }
 }

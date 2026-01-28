@@ -6,26 +6,21 @@ import java.time.format.DateTimeParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Narzędzie do parsowania i formatowania czasu.
- * Obsługuje format czasu trwania (1d2h30m15s) oraz format godzinowy (HH:mm).
- */
 public class TimeParser {
 
-    // Wzorzec dla czasu trwania: 1d2h30m15s
+    // Wzorzec dla czasu trwania: 1d2h30m15.5s250ms20t
     private static final Pattern DURATION_PATTERN = Pattern.compile(
-            "(?:(\\d+)d)?(?:(\\d+)h)?(?:(\\d+)m)?(?:(\\d+)s)?"
+            "(?:(\\d+)d)?(?:(\\d+)h)?(?:(\\d+)m)?(?:(\\d+(?:\\.\\d+)?)s)?(?:(\\d+)ms)?(?:(\\d+)t)?"
     );
 
-    // Format dla czasu godzinowego
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+
+    // 1 tick = 50ms (20 ticków = 1 sekunda)
+    private static final long MS_PER_TICK = 50;
 
     /**
      * Parsuje string czasu trwania do milisekund.
-     * Format: 1d2h30m15s (dni, godziny, minuty, sekundy)
-     *
-     * @param timeString String w formacie czasu trwania
-     * @return Czas w milisekundach lub -1 jeśli format jest nieprawidłowy
+     * Format: 1d2h30m15.5s250ms20t (dni, godziny, minuty, sekundy z ułamkami, milisekundy, ticki)
      */
     public static long parseDuration(String timeString) {
         if (timeString == null || timeString.isEmpty()) {
@@ -38,7 +33,7 @@ public class TimeParser {
             return -1;
         }
 
-        long totalMillis = 0;
+        double totalMillis = 0;
 
         // Dni
         if (matcher.group(1) != null) {
@@ -55,35 +50,50 @@ public class TimeParser {
             totalMillis += Long.parseLong(matcher.group(3)) * 60 * 1000;
         }
 
-        // Sekundy
+        // Sekundy (z ułamkami)
         if (matcher.group(4) != null) {
-            totalMillis += Long.parseLong(matcher.group(4)) * 1000;
+            totalMillis += Double.parseDouble(matcher.group(4)) * 1000;
         }
 
-        return totalMillis > 0 ? totalMillis : -1;
+        // Milisekundy
+        if (matcher.group(5) != null) {
+            totalMillis += Long.parseLong(matcher.group(5));
+        }
+
+        // Ticki
+        if (matcher.group(6) != null) {
+            totalMillis += Long.parseLong(matcher.group(6)) * MS_PER_TICK;
+        }
+
+        return totalMillis > 0 ? (long) totalMillis : -1;
     }
 
     /**
      * Konwertuje milisekundy na czytelny format czasu trwania.
-     *
-     * @param millis Czas w milisekundach
-     * @return String w formacie 1d2h30m15s
      */
     public static String formatDuration(long millis) {
-        long seconds = millis / 1000;
-        long minutes = seconds / 60;
-        long hours = minutes / 60;
-        long days = hours / 24;
+        long days = millis / (1000 * 60 * 60 * 24);
+        millis %= (1000 * 60 * 60 * 24);
 
-        seconds %= 60;
-        minutes %= 60;
-        hours %= 24;
+        long hours = millis / (1000 * 60 * 60);
+        millis %= (1000 * 60 * 60);
+
+        long minutes = millis / (1000 * 60);
+        millis %= (1000 * 60);
+
+        long seconds = millis / 1000;
+        millis %= 1000;
+
+        long ms = millis;
 
         StringBuilder sb = new StringBuilder();
         if (days > 0) sb.append(days).append("d");
         if (hours > 0) sb.append(hours).append("h");
         if (minutes > 0) sb.append(minutes).append("m");
-        if (seconds > 0 || sb.length() == 0) sb.append(seconds).append("s");
+        if (seconds > 0) sb.append(seconds).append("s");
+        if (ms > 0) sb.append(ms).append("ms");
+
+        if (sb.length() == 0) sb.append("0s");
 
         return sb.toString();
     }
@@ -97,9 +107,6 @@ public class TimeParser {
 
     /**
      * Parsuje string czasu godzinowego (HH:mm).
-     *
-     * @param timeString String w formacie HH:mm (np. "11:30")
-     * @return LocalTime lub null jeśli format jest nieprawidłowy
      */
     public static LocalTime parseTimeOfDay(String timeString) {
         if (timeString == null || timeString.isEmpty()) {
@@ -122,22 +129,17 @@ public class TimeParser {
 
     /**
      * Sprawdza czy aktualny czas mieści się w podanym zakresie.
-     *
-     * @param from Czas początkowy (HH:mm)
-     * @param to Czas końcowy (HH:mm)
-     * @return true jeśli aktualny czas jest w zakresie
      */
     public static boolean isCurrentTimeInRange(String from, String to) {
         LocalTime fromTime = parseTimeOfDay(from);
         LocalTime toTime = parseTimeOfDay(to);
 
         if (fromTime == null || toTime == null) {
-            return true; // Jeśli format jest nieprawidłowy, pozwól na spawn
+            return true;
         }
 
         LocalTime now = LocalTime.now();
 
-        // Obsługa zakresu przechodzącego przez północ
         if (fromTime.isAfter(toTime)) {
             return !now.isBefore(fromTime) || !now.isAfter(toTime);
         }

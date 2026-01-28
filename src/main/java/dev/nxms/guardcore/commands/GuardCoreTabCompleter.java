@@ -15,15 +15,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Tab completer dla komend GuardCore.
- * Ukrywa komendy przed graczami bez odpowiednich uprawnień.
- */
 public class GuardCoreTabCompleter implements TabCompleter {
 
     private final GuardCore plugin;
 
-    // Komendy dla każdego typu akcji
     private static final List<String> SET_COMMANDS = Arrays.asList(
             "blockDespawnTime", "blockDespawn", "waterFlow", "lavaFlow",
             "blockRedstoneMechanism", "blockDestruction", "entitySpawnTime"
@@ -49,6 +44,35 @@ public class GuardCoreTabCompleter implements TabCompleter {
             "entitySpawnPoint", "disallowedEntity", "disallowedBlock", "blockDestruction", "reload"
     );
 
+    private static final List<String> BOOLEAN_VALUES = Arrays.asList("true", "false");
+
+    private static final List<String> DURATION_EXAMPLES = Arrays.asList(
+            // Ticki
+            "1t", "5t", "10t", "20t",
+            // Milisekundy
+            "50ms", "100ms", "250ms", "500ms",
+            // Sekundy
+            "1s", "5s", "10s", "30s",
+            // Ułamki sekund
+            "0.5s", "1.5s", "2.5s",
+            // Minuty
+            "1m", "5m", "10m", "30m",
+            // Godziny
+            "1h", "6h", "12h",
+            // Dni
+            "1d", "7d",
+            // Kombinacje
+            "1s500ms", "1s10t", "1m30s", "1h30m", "1d12h"
+    );
+
+    private static final List<String> TIME_OF_DAY_EXAMPLES = Arrays.asList(
+            "00:00", "06:00", "08:00", "12:00", "14:00", "18:00", "20:00", "22:00"
+    );
+
+    private static final List<String> LIMIT_EXAMPLES = Arrays.asList(
+            "1", "5", "10", "25", "50", "100", "250", "500"
+    );
+
     public GuardCoreTabCompleter(GuardCore plugin) {
         this.plugin = plugin;
     }
@@ -61,36 +85,33 @@ public class GuardCoreTabCompleter implements TabCompleter {
 
         List<String> completions = new ArrayList<>();
 
-        if (args.length == 1) {
-            // Główne podkomendy
-            completions = getMainSubCommands(sender);
-        } else if (args.length == 2) {
-            // Drugie argumenty zależne od pierwszego
-            completions = getSecondArguments(sender, args[0]);
-        } else if (args.length == 3) {
-            // Trzecie argumenty - zwykle światy
-            completions = getThirdArguments(sender, args[0], args[1]);
-        } else if (args.length == 4) {
-            // Czwarte argumenty
-            completions = getFourthArguments(sender, args[0], args[1], args[2]);
-        } else if (args.length == 5) {
-            // Piąte argumenty
-            completions = getFifthArguments(sender, args[0], args[1]);
-        } else if (args.length == 6) {
-            // Szóste argumenty (dla entitySpawnTime - godzina "to")
-            completions = getSixthArguments(sender, args[0], args[1]);
+        switch (args.length) {
+            case 1:
+                completions = getMainSubCommands(sender);
+                break;
+            case 2:
+                completions = getSecondArguments(sender, args[0]);
+                break;
+            case 3:
+                completions = getThirdArguments(sender, args[0], args[1]);
+                break;
+            case 4:
+                completions = getFourthArguments(sender, args[0], args[1], args[2]);
+                break;
+            case 5:
+                completions = getFifthArguments(sender, args[0], args[1]);
+                break;
+            case 6:
+                completions = getSixthArguments(sender, args[0], args[1]);
+                break;
         }
 
-        // Filtruj wyniki na podstawie tego co gracz już wpisał
         String currentArg = args[args.length - 1].toLowerCase();
         return completions.stream()
                 .filter(s -> s.toLowerCase().startsWith(currentArg))
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Zwraca główne podkomendy dostępne dla gracza.
-     */
     private List<String> getMainSubCommands(CommandSender sender) {
         List<String> commands = new ArrayList<>();
 
@@ -116,9 +137,6 @@ public class GuardCoreTabCompleter implements TabCompleter {
         return commands;
     }
 
-    /**
-     * Zwraca dostępne drugie argumenty.
-     */
     private List<String> getSecondArguments(CommandSender sender, String firstArg) {
         switch (firstArg.toLowerCase()) {
             case "set":
@@ -150,27 +168,21 @@ public class GuardCoreTabCompleter implements TabCompleter {
         return new ArrayList<>();
     }
 
-    /**
-     * Zwraca trzecie argumenty - głównie nazwy światów.
-     */
     private List<String> getThirdArguments(CommandSender sender, String firstArg, String secondArg) {
-        // Dla większości komend trzeci argument to nazwa świata
-        if (firstArg.equalsIgnoreCase("set") ||
-                firstArg.equalsIgnoreCase("add") ||
-                firstArg.equalsIgnoreCase("remove") ||
-                firstArg.equalsIgnoreCase("info")) {
+        String action = firstArg.toLowerCase();
+
+        if (action.equals("set") || action.equals("add") || action.equals("remove") || action.equals("info")) {
             return getWorldNames();
         }
+
         return new ArrayList<>();
     }
 
-    /**
-     * Zwraca czwarte argumenty.
-     */
     private List<String> getFourthArguments(CommandSender sender, String firstArg, String secondArg, String thirdArg) {
+        String action = firstArg.toLowerCase();
         String setting = secondArg.toLowerCase();
 
-        switch (firstArg.toLowerCase()) {
+        switch (action) {
             case "set":
                 return getSetFourthArguments(setting);
             case "add":
@@ -191,9 +203,9 @@ public class GuardCoreTabCompleter implements TabCompleter {
             case "lavaflow":
             case "blockredstonemechanism":
             case "blockdestruction":
-                return Arrays.asList("true", "false");
+                return new ArrayList<>(BOOLEAN_VALUES);
             case "blockdespawntime":
-                return Arrays.asList("1d0h0m0s", "12h0m0s", "1h0m0s", "30m0s");
+                return new ArrayList<>(DURATION_EXAMPLES);
             case "entityspawntime":
                 return getEntityNames();
         }
@@ -237,49 +249,38 @@ public class GuardCoreTabCompleter implements TabCompleter {
         return new ArrayList<>();
     }
 
-    /**
-     * Zwraca piąte argumenty.
-     */
     private List<String> getFifthArguments(CommandSender sender, String firstArg, String secondArg) {
+        String action = firstArg.toLowerCase();
         String setting = secondArg.toLowerCase();
 
-        if (firstArg.equalsIgnoreCase("add")) {
-            if (setting.equals("entitylimit")) {
-                return Arrays.asList("1", "5", "10", "25", "50", "100");
-            }
+        if (action.equals("add") && setting.equals("entitylimit")) {
+            return new ArrayList<>(LIMIT_EXAMPLES);
         }
 
-        if (firstArg.equalsIgnoreCase("set")) {
-            if (setting.equals("entityspawntime")) {
-                return getTimeExamples();
-            }
+        if (action.equals("set") && setting.equals("entityspawntime")) {
+            return new ArrayList<>(TIME_OF_DAY_EXAMPLES);
         }
 
         return new ArrayList<>();
     }
 
-    /**
-     * Zwraca szóste argumenty.
-     */
     private List<String> getSixthArguments(CommandSender sender, String firstArg, String secondArg) {
-        if (firstArg.equalsIgnoreCase("set") && secondArg.equalsIgnoreCase("entityspawntime")) {
-            return getTimeExamples();
+        String action = firstArg.toLowerCase();
+        String setting = secondArg.toLowerCase();
+
+        if (action.equals("set") && setting.equals("entityspawntime")) {
+            return new ArrayList<>(TIME_OF_DAY_EXAMPLES);
         }
+
         return new ArrayList<>();
     }
 
-    /**
-     * Zwraca listę nazw wszystkich światów.
-     */
     private List<String> getWorldNames() {
         return Bukkit.getWorlds().stream()
                 .map(World::getName)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Zwraca listę nazw wszystkich entity.
-     */
     private List<String> getEntityNames() {
         return Arrays.stream(EntityType.values())
                 .filter(EntityType::isSpawnable)
@@ -287,9 +288,6 @@ public class GuardCoreTabCompleter implements TabCompleter {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Zwraca listę nazw wszystkich bloków.
-     */
     private List<String> getBlockNames() {
         return Arrays.stream(Material.values())
                 .filter(Material::isBlock)
@@ -297,18 +295,8 @@ public class GuardCoreTabCompleter implements TabCompleter {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Zwraca listę nazw spawn pointów dla danego świata.
-     */
     private List<String> getSpawnPointNames(String worldName) {
         return new ArrayList<>(plugin.getConfigManager()
                 .getAllEntitySpawnPoints(worldName).keySet());
-    }
-
-    /**
-     * Zwraca przykładowe godziny dla tab completion.
-     */
-    private List<String> getTimeExamples() {
-        return Arrays.asList("00:00", "06:00", "12:00", "18:00", "20:00", "22:00");
     }
 }

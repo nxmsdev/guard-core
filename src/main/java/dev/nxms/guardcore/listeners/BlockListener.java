@@ -4,7 +4,6 @@ import dev.nxms.guardcore.GuardCore;
 import dev.nxms.guardcore.config.ConfigManager;
 import dev.nxms.guardcore.config.MessageManager;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,10 +12,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-/**
- * Listener obsługujący zdarzenia związane z blokami.
- * Zarządza stawianiem, niszczeniem bloków oraz ochroną bloków.
- */
 public class BlockListener implements Listener {
 
     private final GuardCore plugin;
@@ -29,11 +24,6 @@ public class BlockListener implements Listener {
         this.messages = plugin.getMessageManager();
     }
 
-    /**
-     * Obsługuje stawianie bloków.
-     * - Sprawdza czy blok jest dozwolony
-     * - Rejestruje blok dla systemu despawnu
-     */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
@@ -49,15 +39,12 @@ public class BlockListener implements Listener {
             return;
         }
 
-        // Zarejestruj blok dla systemu despawnu
-        config.addPlacedBlock(block.getLocation());
+        // Rejestruj blok TYLKO jeśli blockDespawn jest włączony
+        if (config.isBlockDespawnEnabled(worldName)) {
+            config.addPlacedBlock(block.getLocation());
+        }
     }
 
-    /**
-     * Obsługuje niszczenie bloków.
-     * - Sprawdza ochronę bloków (tylko postawione przez graczy)
-     * - Usuwa blok z rejestru
-     */
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
@@ -67,9 +54,7 @@ public class BlockListener implements Listener {
 
         // Sprawdź czy ochrona bloków jest włączona
         if (config.isBlockDestructionProtected(worldName)) {
-            // Pozwól tylko na niszczenie bloków postawionych przez graczy
             if (!config.isBlockPlacedByPlayer(location)) {
-                // Sprawdź czy gracz ma uprawnienia admina
                 if (!player.hasPermission("guardcore.admin")) {
                     event.setCancelled(true);
                     messages.send(player, "blockdestruction-prevented");
@@ -78,7 +63,7 @@ public class BlockListener implements Listener {
             }
         }
 
-        // Usuń blok z rejestru postawionych bloków
+        // Usuń blok z rejestru
         config.removePlacedBlock(location);
     }
 }

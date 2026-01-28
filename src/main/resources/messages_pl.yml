@@ -9,7 +9,7 @@ unknown-command: "&cNieznana komenda. Użyj &e/guardcore help &caby zobaczyć do
 invalid-arguments: "&cNieprawidłowe argumenty. Użyj &e/guardcore help {command} &caby zobaczyć składnię."
 world-not-found: "&cŚwiat &e{world} &cnie istnieje!"
 invalid-boolean: "&cWartość musi być &etrue &club &efalse&c!"
-invalid-time-format: "&cNieprawidłowy format czasu! Użyj formatu: &e1d2h30m15s"
+invalid-time-format: "&cNieprawidłowy format czasu! Użyj formatu: &e1d2h30m15s250ms20t"
 invalid-time-range: "&cNieprawidłowy format godzin! Użyj formatu 24h: &e11:30 lub 18:20"
 invalid-entity: "&cEntity &e{entity} &cnie istnieje!"
 invalid-block: "&cBlok &e{block} &cnie istnieje!"

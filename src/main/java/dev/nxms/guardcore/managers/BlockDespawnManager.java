@@ -5,24 +5,26 @@ import dev.nxms.guardcore.config.ConfigManager;
 import dev.nxms.guardcore.utils.TimeParser;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
-/**
- * Zarządza despawnem bloków postawionych przez graczy.
- * Cyklicznie sprawdza bloki i usuwa te, które przekroczyły czas życia.
- */
 public class BlockDespawnManager {
 
     private final GuardCore plugin;
     private final ConfigManager config;
     private BukkitTask despawnTask;
 
-    // Interwał sprawdzania bloków (w tickach - 20 ticków = 1 sekunda)
-    private static final long CHECK_INTERVAL = 20 * 60; // Co minutę
+    // Jak często sprawdzać bloki (w sekundach)
+    private static final int CHECK_INTERVAL_SECONDS = 1;
+
+    // Opóźnienie między usuwaniem kolejnych bloków (w sekundach)
+    private static final double DESPAWN_DELAY_SECONDS = 0.25;
 
     public BlockDespawnManager(GuardCore plugin) {
         this.plugin = plugin;
@@ -30,30 +32,29 @@ public class BlockDespawnManager {
         startDespawnTask();
     }
 
-    /**
-     * Uruchamia zadanie cyklicznego sprawdzania bloków do despawnu.
-     */
     private void startDespawnTask() {
-        despawnTask = Bukkit.getScheduler().runTaskTimer(plugin, this::checkBlocksForDespawn, CHECK_INTERVAL, CHECK_INTERVAL);
+        long intervalTicks = CHECK_INTERVAL_SECONDS * 20L;
+        despawnTask = Bukkit.getScheduler().runTaskTimer(plugin, this::checkBlocksForDespawn, intervalTicks, intervalTicks);
+        plugin.getLogger().info("Block despawn task started (checking every " + CHECK_INTERVAL_SECONDS + " second(s))");
     }
 
-    /**
-     * Sprawdza wszystkie postawione bloki i usuwa te, które powinny zniknąć.
-     */
     private void checkBlocksForDespawn() {
         Map<String, Long> placedBlocks = config.getPlacedBlocks();
+
+        if (placedBlocks.isEmpty()) {
+            return;
+        }
+
         long currentTime = System.currentTimeMillis();
+        List<BlockToDespawn> blocksToRemove = new ArrayList<>();
 
-        Iterator<Map.Entry<String, Long>> iterator = placedBlocks.entrySet().iterator();
-
-        while (iterator.hasNext()) {
-            Map.Entry<String, Long> entry = iterator.next();
+        for (Map.Entry<String, Long> entry : placedBlocks.entrySet()) {
             String locationKey = entry.getKey();
             long placedTime = entry.getValue();
 
-            // Parsuj lokalizację z klucza
             String[] parts = locationKey.split(":");
             if (parts.length != 4) {
+                config.removePlacedBlockByKey(locationKey);
                 continue;
             }
 
@@ -64,12 +65,10 @@ public class BlockDespawnManager {
                 continue;
             }
 
-            // Sprawdź czy despawn jest włączony dla tego świata
             if (!config.isBlockDespawnEnabled(worldName)) {
                 continue;
             }
 
-            // Pobierz czas despawnu dla świata
             String despawnTimeStr = config.getBlockDespawnTime(worldName);
             long despawnTimeMs = TimeParser.parseDuration(despawnTimeStr);
 
@@ -77,43 +76,75 @@ public class BlockDespawnManager {
                 continue;
             }
 
-            // Sprawdź czy blok powinien zniknąć
-            if (currentTime - placedTime >= despawnTimeMs) {
+            long timePassed = currentTime - placedTime;
+
+            if (timePassed >= despawnTimeMs) {
                 try {
                     int x = Integer.parseInt(parts[1]);
                     int y = Integer.parseInt(parts[2]);
                     int z = Integer.parseInt(parts[3]);
 
-                    Location location = new Location(world, x, y, z);
+                    blocksToRemove.add(new BlockToDespawn(locationKey, world, x, y, z, placedTime));
 
-                    // Usuń blok (ustaw na powietrze)
-                    Bukkit.getScheduler().runTask(plugin, () -> {
-                        location.getBlock().setType(org.bukkit.Material.AIR);
-                    });
-
-                    // Usuń z mapy
-                    config.removePlacedBlock(location);
                 } catch (NumberFormatException e) {
                     plugin.getLogger().warning("Invalid block location format: " + locationKey);
+                    config.removePlacedBlockByKey(locationKey);
                 }
             }
         }
-    }
 
-    /**
-     * Zatrzymuje zadanie despawnu.
-     */
-    public void shutdown() {
-        if (despawnTask != null) {
-            despawnTask.cancel();
+        if (!blocksToRemove.isEmpty()) {
+            blocksToRemove.sort(Comparator.comparingLong(b -> b.placedTime));
+            despawnBlocksSequentially(blocksToRemove, 0);
         }
     }
 
-    /**
-     * Przeładowuje manager.
-     */
+    private void despawnBlocksSequentially(List<BlockToDespawn> blocks, int index) {
+        if (index >= blocks.size()) {
+            return;
+        }
+
+        BlockToDespawn block = blocks.get(index);
+        long delayTicks = (long) (DESPAWN_DELAY_SECONDS * 20);
+
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            Location location = new Location(block.world, block.x, block.y, block.z);
+
+            if (location.getBlock().getType() != Material.AIR) {
+                location.getBlock().setType(Material.AIR);
+            }
+
+            config.removePlacedBlockByKey(block.key);
+            despawnBlocksSequentially(blocks, index + 1);
+
+        }, delayTicks);
+    }
+
+    public void shutdown() {
+        if (despawnTask != null) {
+            despawnTask.cancel();
+            despawnTask = null;
+        }
+    }
+
     public void reload() {
         shutdown();
         startDespawnTask();
+    }
+
+    private static class BlockToDespawn {
+        final String key;
+        final World world;
+        final int x, y, z;
+        final long placedTime;
+
+        BlockToDespawn(String key, World world, int x, int y, int z, long placedTime) {
+            this.key = key;
+            this.world = world;
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.placedTime = placedTime;
+        }
     }
 }
