@@ -10,6 +10,9 @@ import java.util.UUID;
 public class BypassManager {
 
     private final Map<UUID, Boolean> disallowedBlocksBypass = new HashMap<>();
+    private final Map<UUID, Boolean> blockDespawnBypass = new HashMap<>();
+
+    // ===== DISALLOWED BLOCKS BYPASS =====
 
     /**
      * Sprawdza czy gracz ma włączony bypass na zakazane bloki.
@@ -30,7 +33,7 @@ public class BypassManager {
     }
 
     /**
-     * Przełącza bypass dla gracza.
+     * Przełącza bypass zakazanych bloków dla gracza.
      * @return nowy stan bypass
      */
     public boolean toggleDisallowedBlocksBypass(UUID uuid) {
@@ -39,11 +42,44 @@ public class BypassManager {
         return newState;
     }
 
+    // ===== BLOCK DESPAWN BYPASS =====
+
     /**
-     * Usuwa gracza z bypass (przy wyjściu z serwera).
+     * Sprawdza czy gracz ma włączony bypass na znikanie bloków.
+     */
+    public boolean hasBlockDespawnBypass(UUID uuid) {
+        return blockDespawnBypass.getOrDefault(uuid, false);
+    }
+
+    /**
+     * Ustawia bypass na znikanie bloków dla gracza.
+     */
+    public void setBlockDespawnBypass(UUID uuid, boolean enabled) {
+        if (enabled) {
+            blockDespawnBypass.put(uuid, true);
+        } else {
+            blockDespawnBypass.remove(uuid);
+        }
+    }
+
+    /**
+     * Przełącza bypass znikania bloków dla gracza.
+     * @return nowy stan bypass
+     */
+    public boolean toggleBlockDespawnBypass(UUID uuid) {
+        boolean newState = !hasBlockDespawnBypass(uuid);
+        setBlockDespawnBypass(uuid, newState);
+        return newState;
+    }
+
+    // ===== COMMON =====
+
+    /**
+     * Usuwa gracza z wszystkich bypassów (przy wyjściu z serwera).
      */
     public void removePlayer(UUID uuid) {
         disallowedBlocksBypass.remove(uuid);
+        blockDespawnBypass.remove(uuid);
     }
 
     /**
@@ -51,5 +87,6 @@ public class BypassManager {
      */
     public void clearAll() {
         disallowedBlocksBypass.clear();
+        blockDespawnBypass.clear();
     }
 }

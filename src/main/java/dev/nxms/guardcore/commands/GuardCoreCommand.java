@@ -73,6 +73,8 @@ public class GuardCoreCommand implements CommandExecutor {
         return true;
     }
 
+    // ===== BYPASS COMMANDS =====
+
     private void handleBypass(CommandSender sender, String[] args) {
         if (!(sender instanceof Player)) {
             messages.send(sender, "player-only-command");
@@ -96,6 +98,9 @@ public class GuardCoreCommand implements CommandExecutor {
         switch (bypassType) {
             case "disallowedblocks":
                 handleBypassDisallowedBlocks(player, args);
+                break;
+            case "blockdespawn":
+                handleBypassBlockDespawn(player, args);
                 break;
             default:
                 handleBypassHelp(player);
@@ -135,11 +140,49 @@ public class GuardCoreCommand implements CommandExecutor {
                 MessageManager.placeholders("status", messages.getBooleanDisplay(newState)));
     }
 
-    private void handleBypassHelp(Player player) {
-        boolean currentStatus = plugin.getBypassManager().hasDisallowedBlocksBypass(player.getUniqueId());
-        messages.send(player, "bypass-info",
-                MessageManager.placeholders("status", messages.getBooleanDisplay(currentStatus)));
+    private void handleBypassBlockDespawn(Player player, String[] args) {
+        boolean newState;
+
+        if (args.length < 3) {
+            // Toggle
+            newState = plugin.getBypassManager().toggleBlockDespawnBypass(player.getUniqueId());
+        } else {
+            String value = args[2].toLowerCase();
+            switch (value) {
+                case "true":
+                case "on":
+                case "tak":
+                case "1":
+                    newState = true;
+                    break;
+                case "false":
+                case "off":
+                case "nie":
+                case "0":
+                    newState = false;
+                    break;
+                default:
+                    messages.send(player, "invalid-boolean");
+                    return;
+            }
+            plugin.getBypassManager().setBlockDespawnBypass(player.getUniqueId(), newState);
+        }
+
+        messages.send(player, "bypass-blockdespawn-set",
+                MessageManager.placeholders("status", messages.getBooleanDisplay(newState)));
     }
+
+    private void handleBypassHelp(Player player) {
+        boolean disallowedBlocksStatus = plugin.getBypassManager().hasDisallowedBlocksBypass(player.getUniqueId());
+        boolean blockDespawnStatus = plugin.getBypassManager().hasBlockDespawnBypass(player.getUniqueId());
+
+        messages.send(player, "bypass-info", MessageManager.placeholders(
+                "disallowedblocks_status", messages.getBooleanDisplay(disallowedBlocksStatus),
+                "blockdespawn_status", messages.getBooleanDisplay(blockDespawnStatus)
+        ));
+    }
+
+    // ===== SET COMMANDS =====
 
     private void handleSet(CommandSender sender, String[] args) {
         if (!PermissionUtils.hasSetPermission(sender)) {
@@ -175,124 +218,6 @@ public class GuardCoreCommand implements CommandExecutor {
                 break;
             case "entityspawntime":
                 handleSetEntitySpawnTime(sender, args);
-                break;
-            default:
-                messages.send(sender, "unknown-command");
-                break;
-        }
-    }
-
-    private void handleAdd(CommandSender sender, String[] args) {
-        if (!PermissionUtils.hasAddPermission(sender)) {
-            messages.send(sender, "no-permission");
-            return;
-        }
-
-        if (args.length < 2) {
-            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "add"));
-            return;
-        }
-
-        String setting = args[1].toLowerCase();
-
-        switch (setting) {
-            case "entitylimit":
-                handleAddEntityLimit(sender, args);
-                break;
-            case "entityspawnpoint":
-                handleAddEntitySpawnPoint(sender, args);
-                break;
-            case "disallowedentity":
-                handleAddDisallowedEntity(sender, args);
-                break;
-            case "disallowedblock":
-                handleAddDisallowedBlock(sender, args);
-                break;
-            default:
-                messages.send(sender, "unknown-command");
-                break;
-        }
-    }
-
-    private void handleRemove(CommandSender sender, String[] args) {
-        if (!PermissionUtils.hasRemovePermission(sender)) {
-            messages.send(sender, "no-permission");
-            return;
-        }
-
-        if (args.length < 2) {
-            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "remove"));
-            return;
-        }
-
-        String setting = args[1].toLowerCase();
-
-        switch (setting) {
-            case "entitylimit":
-                handleRemoveEntityLimit(sender, args);
-                break;
-            case "entityspawntime":
-                handleRemoveEntitySpawnTime(sender, args);
-                break;
-            case "entityspawnpoint":
-                handleRemoveEntitySpawnPoint(sender, args);
-                break;
-            case "disallowedentity":
-                handleRemoveDisallowedEntity(sender, args);
-                break;
-            case "disallowedblock":
-                handleRemoveDisallowedBlock(sender, args);
-                break;
-            default:
-                messages.send(sender, "unknown-command");
-                break;
-        }
-    }
-
-    private void handleInfo(CommandSender sender, String[] args) {
-        if (!PermissionUtils.hasInfoPermission(sender)) {
-            messages.send(sender, "no-permission");
-            return;
-        }
-
-        if (args.length < 2) {
-            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "info"));
-            return;
-        }
-
-        String setting = args[1].toLowerCase();
-
-        switch (setting) {
-            case "blockdespawntime":
-            case "blockdespawn":
-                handleInfoBlockDespawn(sender, args);
-                break;
-            case "waterflow":
-                handleInfoWaterFlow(sender, args);
-                break;
-            case "lavaflow":
-                handleInfoLavaFlow(sender, args);
-                break;
-            case "entitylimit":
-                handleInfoEntityLimit(sender, args);
-                break;
-            case "entityspawntime":
-                handleInfoEntitySpawnTime(sender, args);
-                break;
-            case "blockredstonemechanism":
-                handleInfoRedstoneMechanism(sender, args);
-                break;
-            case "entityspawnpoint":
-                handleInfoEntitySpawnPoint(sender, args);
-                break;
-            case "disallowedentity":
-                handleInfoDisallowedEntity(sender, args);
-                break;
-            case "disallowedblock":
-                handleInfoDisallowedBlock(sender, args);
-                break;
-            case "blockdestruction":
-                handleInfoBlockDestruction(sender, args);
                 break;
             default:
                 messages.send(sender, "unknown-command");
@@ -502,6 +427,40 @@ public class GuardCoreCommand implements CommandExecutor {
         ));
     }
 
+    // ===== ADD COMMANDS =====
+
+    private void handleAdd(CommandSender sender, String[] args) {
+        if (!PermissionUtils.hasAddPermission(sender)) {
+            messages.send(sender, "no-permission");
+            return;
+        }
+
+        if (args.length < 2) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "add"));
+            return;
+        }
+
+        String setting = args[1].toLowerCase();
+
+        switch (setting) {
+            case "entitylimit":
+                handleAddEntityLimit(sender, args);
+                break;
+            case "entityspawnpoint":
+                handleAddEntitySpawnPoint(sender, args);
+                break;
+            case "disallowedentity":
+                handleAddDisallowedEntity(sender, args);
+                break;
+            case "disallowedblock":
+                handleAddDisallowedBlock(sender, args);
+                break;
+            default:
+                messages.send(sender, "unknown-command");
+                break;
+        }
+    }
+
     private void handleAddEntityLimit(CommandSender sender, String[] args) {
         if (args.length < 5) {
             messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "entityLimit"));
@@ -628,6 +587,43 @@ public class GuardCoreCommand implements CommandExecutor {
                 "block", blockName,
                 "world", worldName
         ));
+    }
+
+    // ===== REMOVE COMMANDS =====
+
+    private void handleRemove(CommandSender sender, String[] args) {
+        if (!PermissionUtils.hasRemovePermission(sender)) {
+            messages.send(sender, "no-permission");
+            return;
+        }
+
+        if (args.length < 2) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "remove"));
+            return;
+        }
+
+        String setting = args[1].toLowerCase();
+
+        switch (setting) {
+            case "entitylimit":
+                handleRemoveEntityLimit(sender, args);
+                break;
+            case "entityspawntime":
+                handleRemoveEntitySpawnTime(sender, args);
+                break;
+            case "entityspawnpoint":
+                handleRemoveEntitySpawnPoint(sender, args);
+                break;
+            case "disallowedentity":
+                handleRemoveDisallowedEntity(sender, args);
+                break;
+            case "disallowedblock":
+                handleRemoveDisallowedBlock(sender, args);
+                break;
+            default:
+                messages.send(sender, "unknown-command");
+                break;
+        }
     }
 
     private void handleRemoveEntityLimit(CommandSender sender, String[] args) {
@@ -762,6 +758,59 @@ public class GuardCoreCommand implements CommandExecutor {
                 "block", blockName,
                 "world", worldName
         ));
+    }
+
+    // ===== INFO COMMANDS =====
+
+    private void handleInfo(CommandSender sender, String[] args) {
+        if (!PermissionUtils.hasInfoPermission(sender)) {
+            messages.send(sender, "no-permission");
+            return;
+        }
+
+        if (args.length < 2) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "info"));
+            return;
+        }
+
+        String setting = args[1].toLowerCase();
+
+        switch (setting) {
+            case "blockdespawntime":
+            case "blockdespawn":
+                handleInfoBlockDespawn(sender, args);
+                break;
+            case "waterflow":
+                handleInfoWaterFlow(sender, args);
+                break;
+            case "lavaflow":
+                handleInfoLavaFlow(sender, args);
+                break;
+            case "entitylimit":
+                handleInfoEntityLimit(sender, args);
+                break;
+            case "entityspawntime":
+                handleInfoEntitySpawnTime(sender, args);
+                break;
+            case "blockredstonemechanism":
+                handleInfoRedstoneMechanism(sender, args);
+                break;
+            case "entityspawnpoint":
+                handleInfoEntitySpawnPoint(sender, args);
+                break;
+            case "disallowedentity":
+                handleInfoDisallowedEntity(sender, args);
+                break;
+            case "disallowedblock":
+                handleInfoDisallowedBlock(sender, args);
+                break;
+            case "blockdestruction":
+                handleInfoBlockDestruction(sender, args);
+                break;
+            default:
+                messages.send(sender, "unknown-command");
+                break;
+        }
     }
 
     private void handleInfoBlockDespawn(CommandSender sender, String[] args) {
@@ -1042,6 +1091,8 @@ public class GuardCoreCommand implements CommandExecutor {
         ));
     }
 
+    // ===== OTHER COMMANDS =====
+
     private void handleReload(CommandSender sender) {
         if (!PermissionUtils.hasReloadPermission(sender)) {
             messages.send(sender, "no-permission");
@@ -1075,6 +1126,8 @@ public class GuardCoreCommand implements CommandExecutor {
 
         messages.sendRaw(sender, helpKey);
     }
+
+    // ===== UTILITY METHODS =====
 
     private boolean isValidWorld(String worldName) {
         return Bukkit.getWorld(worldName) != null;

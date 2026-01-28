@@ -9,10 +9,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BlockDespawnManager {
 
@@ -39,7 +36,7 @@ public class BlockDespawnManager {
     }
 
     private void checkBlocksForDespawn() {
-        Map<String, Long> placedBlocks = config.getPlacedBlocks();
+        Map<String, ConfigManager.PlacedBlockData> placedBlocks = config.getPlacedBlocksData();
 
         if (placedBlocks.isEmpty()) {
             return;
@@ -48,9 +45,16 @@ public class BlockDespawnManager {
         long currentTime = System.currentTimeMillis();
         List<BlockToDespawn> blocksToRemove = new ArrayList<>();
 
-        for (Map.Entry<String, Long> entry : placedBlocks.entrySet()) {
+        for (Map.Entry<String, ConfigManager.PlacedBlockData> entry : placedBlocks.entrySet()) {
             String locationKey = entry.getKey();
-            long placedTime = entry.getValue();
+            ConfigManager.PlacedBlockData blockData = entry.getValue();
+
+            // Sprawdź czy blok ma bypass - jeśli tak, pomiń
+            if (blockData.hasBypassDespawn()) {
+                continue;
+            }
+
+            long placedTime = blockData.getPlacedTime();
 
             String[] parts = locationKey.split(":");
             if (parts.length != 4) {

@@ -36,7 +36,7 @@ public class BlockListener implements Listener {
             // Sprawdź czy gracz ma bypass
             if (player.hasPermission("guardcore.bypass")
                     && plugin.getBypassManager().hasDisallowedBlocksBypass(player.getUniqueId())) {
-                // Gracz ma bypass - pozwól na postawienie, ale nadal rejestruj blok
+                // Gracz ma bypass - pozwól na postawienie
             } else {
                 // Brak bypass - zablokuj
                 event.setCancelled(true);
@@ -46,9 +46,18 @@ public class BlockListener implements Listener {
             }
         }
 
-        // Rejestruj blok TYLKO jeśli blockDespawn jest włączony LUB blockDestruction jest wyłączony
-        if (config.isBlockDespawnEnabled(worldName) || !config.isBlockDestructionAllowed(worldName)) {
-            config.addPlacedBlock(block.getLocation());
+        // Sprawdź czy gracz ma bypass na znikanie bloków
+        boolean hasDespawnBypass = player.hasPermission("guardcore.bypass")
+                && plugin.getBypassManager().hasBlockDespawnBypass(player.getUniqueId());
+
+        // Sprawdź czy trzeba rejestrować blok
+        boolean needsTrackingForDespawn = config.isBlockDespawnEnabled(worldName);
+        boolean needsTrackingForDestruction = !config.isBlockDestructionAllowed(worldName);
+
+        // Rejestruj blok jeśli potrzebne (despawn lub ochrona przed niszczeniem)
+        if (needsTrackingForDespawn || needsTrackingForDestruction) {
+            // Jeśli gracz ma bypass - oznacz blok jako niezniszczalny przez despawn
+            config.addPlacedBlock(block.getLocation(), player.getUniqueId(), hasDespawnBypass);
         }
     }
 

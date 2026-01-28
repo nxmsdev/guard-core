@@ -8,17 +8,16 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ConfigManager {
 
     private final GuardCore plugin;
     private FileConfiguration config;
     private File configFile;
-    private Map<String, Long> placedBlocks;
+
+    // Zmieniona struktura: przechowuje też UUID gracza który postawił blok
+    private Map<String, PlacedBlockData> placedBlocks;
 
     public ConfigManager(GuardCore plugin) {
         this.plugin = plugin;
@@ -130,8 +129,6 @@ public class ConfigManager {
     }
 
     // Block Destruction methods
-    // true = można niszczyć wszystkie bloki
-    // false = można niszczyć tylko bloki postawione przez graczy
 
     public boolean isBlockDestructionAllowed(String worldName) {
         ensureWorldSection(worldName);
@@ -318,11 +315,60 @@ public class ConfigManager {
         return getDisallowedBlocks(worldName).contains(blockType);
     }
 
-    // Placed Blocks tracking
+    // ===== PLACED BLOCKS TRACKING =====
 
-    public void addPlacedBlock(Location location) {
+    /**
+     * Klasa przechowująca dane o postawionym bloku.
+     */
+    public static class PlacedBlockData {
+        private final long placedTime;
+        private final UUID playerUUID;
+        private final boolean bypassDespawn;
+
+        public PlacedBlockData(long placedTime, UUID playerUUID, boolean bypassDespawn) {
+            this.placedTime = placedTime;
+            this.playerUUID = playerUUID;
+            this.bypassDespawn = bypassDespawn;
+        }
+
+        // Konstruktor dla kompatybilności wstecznej
+        public PlacedBlockData(long placedTime, UUID playerUUID) {
+            this(placedTime, playerUUID, false);
+        }
+
+        public long getPlacedTime() {
+            return placedTime;
+        }
+
+        public UUID getPlayerUUID() {
+            return playerUUID;
+        }
+
+        public boolean hasBypassDespawn() {
+            return bypassDespawn;
+        }
+    }
+
+    /**
+     * Dodaje blok do rejestru (z UUID gracza i flagą bypass).
+     */
+    public void addPlacedBlock(Location location, UUID playerUUID, boolean bypassDespawn) {
         String key = locationToKey(location);
-        placedBlocks.put(key, System.currentTimeMillis());
+        placedBlocks.put(key, new PlacedBlockData(System.currentTimeMillis(), playerUUID, bypassDespawn));
+    }
+
+    /**
+     * Dodaje blok do rejestru (z UUID gracza, bez bypass).
+     */
+    public void addPlacedBlock(Location location, UUID playerUUID) {
+        addPlacedBlock(location, playerUUID, false);
+    }
+
+    /**
+     * Dodaje blok do rejestru (bez UUID - kompatybilność wsteczna).
+     */
+    public void addPlacedBlock(Location location) {
+        addPlacedBlock(location, null, false);
     }
 
     public void removePlacedBlock(Location location) {
@@ -341,10 +387,57 @@ public class ConfigManager {
 
     public long getBlockPlacedTime(Location location) {
         String key = locationToKey(location);
-        return placedBlocks.getOrDefault(key, -1L);
+        PlacedBlockData data = placedBlocks.get(key);
+        return data != null ? data.getPlacedTime() : -1L;
     }
 
+    /**
+     * Pobiera UUID gracza który postawił blok.
+     */
+    public UUID getBlockPlacedByPlayerUUID(Location location) {
+        String key = locationToKey(location);
+        PlacedBlockData data = placedBlocks.get(key);
+        return data != null ? data.getPlayerUUID() : null;
+    }
+
+    /**
+     * Pobiera UUID gracza który postawił blok (po kluczu).
+     */
+    public UUID getBlockPlacedByPlayerUUID(String key) {
+        PlacedBlockData data = placedBlocks.get(key);
+        return data != null ? data.getPlayerUUID() : null;
+    }
+
+    /**
+     * Sprawdza czy blok ma bypass na despawn.
+     */
+    public boolean hasBlockBypassDespawn(String key) {
+        PlacedBlockData data = placedBlocks.get(key);
+        return data != null && data.hasBypassDespawn();
+    }
+
+    /**
+     * Pobiera dane o postawionym bloku.
+     */
+    public PlacedBlockData getPlacedBlockData(String key) {
+        return placedBlocks.get(key);
+    }
+
+    /**
+     * Zwraca mapę kluczy lokalizacji do czasów postawienia (kompatybilność).
+     */
     public Map<String, Long> getPlacedBlocks() {
+        Map<String, Long> result = new HashMap<>();
+        for (Map.Entry<String, PlacedBlockData> entry : placedBlocks.entrySet()) {
+            result.put(entry.getKey(), entry.getValue().getPlacedTime());
+        }
+        return result;
+    }
+
+    /**
+     * Zwraca pełną mapę danych o postawionych blokach.
+     */
+    public Map<String, PlacedBlockData> getPlacedBlocksData() {
         return new HashMap<>(placedBlocks);
     }
 
@@ -361,7 +454,25 @@ public class ConfigManager {
         if (section != null) {
             for (String key : section.getKeys(false)) {
                 String actualKey = key.replace(".", ":");
-                placedBlocks.put(actualKey, section.getLong(key));
+
+                // Sprawdź czy to nowy format (z UUID) czy stary
+                if (section.isConfigurationSection(key)) {
+                    // Nowy format
+                    long time = section.getLong(key + ".time");
+                    String uuidStr = section.getString(key + ".player");
+                    boolean bypassDespawn = section.getBoolean(key + ".bypassDespawn", false);
+                    UUID uuid = null;
+                    if (uuidStr != null && !uuidStr.isEmpty()) {
+                        try {
+                            uuid = UUID.fromString(uuidStr);
+                        } catch (IllegalArgumentException ignored) {}
+                    }
+                    placedBlocks.put(actualKey, new PlacedBlockData(time, uuid, bypassDespawn));
+                } else {
+                    // Stary format (tylko czas)
+                    long time = section.getLong(key);
+                    placedBlocks.put(actualKey, new PlacedBlockData(time, null, false));
+                }
             }
         }
         plugin.getLogger().info("Loaded " + placedBlocks.size() + " placed blocks from config");
@@ -369,9 +480,15 @@ public class ConfigManager {
 
     private void savePlacedBlocks() {
         config.set("placedBlocks", null);
-        for (Map.Entry<String, Long> entry : placedBlocks.entrySet()) {
+        for (Map.Entry<String, PlacedBlockData> entry : placedBlocks.entrySet()) {
             String safeKey = entry.getKey().replace(":", ".");
-            config.set("placedBlocks." + safeKey, entry.getValue());
+            PlacedBlockData data = entry.getValue();
+
+            config.set("placedBlocks." + safeKey + ".time", data.getPlacedTime());
+            config.set("placedBlocks." + safeKey + ".bypassDespawn", data.hasBypassDespawn());
+            if (data.getPlayerUUID() != null) {
+                config.set("placedBlocks." + safeKey + ".player", data.getPlayerUUID().toString());
+            }
         }
     }
 }
