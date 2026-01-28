@@ -1,6 +1,48 @@
 name: GuardCore
-version: '${project.version}'
+version: ${project.version}
 main: dev.nxms.guardcore.GuardCore
 api-version: '1.21'
 author: nxmsdev
-website: nxms.dev
+website: www.nxms.dev
+description: Advanced world protection and modification plugin
+
+commands:
+  guardcore:
+    description: Main GuardCore command
+    usage: /<command> [args]
+    permission: guardcore.command
+    aliases:
+      - gc
+
+permissions:
+  guardcore.command:
+    description: Access to /guardcore commands (hides from regular players)
+    default: op
+  guardcore.admin:
+    description: Full access to all GuardCore commands
+    default: op
+    children:
+      guardcore.set: true
+      guardcore.add: true
+      guardcore.remove: true
+      guardcore.info: true
+      guardcore.help: true
+      guardcore.reload: true
+  guardcore.set:
+    description: Access to /guardcore set commands
+    default: op
+  guardcore.add:
+    description: Access to /guardcore add commands
+    default: op
+  guardcore.remove:
+    description: Access to /guardcore remove commands
+    default: op
+  guardcore.info:
+    description: Access to /guardcore info commands
+    default: op
+  guardcore.help:
+    description: Access to /guardcore help command
+    default: op
+  guardcore.reload:
+    description: Access to /guardcore reload command
+    default: op

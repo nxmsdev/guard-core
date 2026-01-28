@@ -1,0 +1,178 @@
+# GuardCore English Messages
+# Author: nxmsdev | Website: www.nxms.dev
+
+prefix: "&8[&6GuardCore&8] "
+
+# General messages
+no-permission: "&cYou don't have permission to use this command!"
+unknown-command: "&cUnknown command. Use &e/guardcore help &cto see available commands."
+invalid-arguments: "&cInvalid arguments. Use &e/guardcore help {command} &cto see syntax."
+world-not-found: "&cWorld &e{world} &cdoes not exist!"
+invalid-boolean: "&cValue must be &etrue &cor &efalse&c!"
+invalid-time-format: "&cInvalid time format! Use format: &e1d2h30m15s"
+invalid-time-range: "&cInvalid time range format! Use 24h format: &e11:30 or 18:20"
+invalid-entity: "&cEntity &e{entity} &cdoes not exist!"
+invalid-block: "&cBlock &e{block} &cdoes not exist!"
+reload-success: "&aPlugin has been successfully reloaded!"
+
+# Block Despawn messages
+blockdespawn-set-time: "&aSet block despawn time in world &e{world} &ato &e{time}&a."
+blockdespawn-set-enabled: "&aChanged block despawn status in world &e{world} &ato &e{status}&a."
+blockdespawn-info: "&7Block despawn in world &e{world}&7:\n&7- Status: &e{status}\n&7- Time: &e{time}"
+
+# Water/Lava Flow messages
+waterflow-set: "&aChanged water flow in world &e{world} &ato &e{status}&a."
+waterflow-info: "&7Water flow in world &e{world}&7: &e{status}"
+lavaflow-set: "&aChanged lava flow in world &e{world} &ato &e{status}&a."
+lavaflow-info: "&7Lava flow in world &e{world}&7: &e{status}"
+
+# Entity Limit messages
+entitylimit-added: "&aAdded limit of &e{limit} &afor entity &e{entity} &ain world &e{world}&a."
+entitylimit-removed: "&aRemoved limit for entity &e{entity} &ain world &e{world}&a."
+entitylimit-info: "&7Entity &e{entity} &7limit in world &e{world}&7: &e{limit}"
+entitylimit-not-set: "&7Entity &e{entity} &7has no limit set in world &e{world}&7."
+
+# Entity Spawn Time messages
+entityspawntime-set: "&aSet spawn time for entity &e{entity} &afrom &e{from} &ato &e{to} &ain world &e{world}&a."
+entityspawntime-removed: "&aRemoved spawn time restriction for entity &e{entity} &ain world &e{world}&a."
+entityspawntime-info: "&7Spawn time for entity &e{entity} &7in world &e{world}&7:\n&7- From: &e{from}\n&7- To: &e{to}"
+entityspawntime-not-set: "&7Entity &e{entity} &7has no spawn time set in world &e{world}&7."
+
+# Redstone Mechanism messages
+redstonemechanism-set: "&aChanged redstone mechanism blocking in world &e{world} &ato &e{status}&a."
+redstonemechanism-info: "&7Redstone mechanism blocking in world &e{world}&7: &e{status}"
+
+# Entity Spawn Point messages
+entityspawnpoint-added: "&aAdded spawn point &e{name} &afor entity &e{entity} &ain world &e{world}&a."
+entityspawnpoint-removed: "&aRemoved spawn point &e{name} &afrom world &e{world}&a."
+entityspawnpoint-not-found: "&cSpawn point &e{name} &cdoes not exist in world &e{world}&c!"
+entityspawnpoint-list-header: "&7Spawn points in world &e{world}&7:"
+entityspawnpoint-list-item: "&7- &e{name}&7: &a{entity} &7(&e{x}&7, &e{y}&7, &e{z}&7)"
+entityspawnpoint-list-empty: "&7No spawn points in world &e{world}&7."
+entityspawnpoint-info: "&7Spawn point &e{name} &7in world &e{world}&7:\n&7- Entity: &e{entity}\n&7- Position: &e{x}&7, &e{y}&7, &e{z}"
+
+# Disallowed Entity messages
+disallowedentity-added: "&aAdded &e{entity} &ato disallowed entities list in world &e{world}&a."
+disallowedentity-removed: "&aRemoved &e{entity} &afrom disallowed entities list in world &e{world}&a."
+disallowedentity-not-found: "&cEntity &e{entity} &cis not on the disallowed list in world &e{world}&c!"
+disallowedentity-list-header: "&7Disallowed entities in world &e{world}&7:"
+disallowedentity-list-item: "&7- &e{entity}"
+disallowedentity-list-empty: "&7No disallowed entities in world &e{world}&7."
+
+# Disallowed Block messages
+disallowedblock-added: "&aAdded &e{block} &ato disallowed blocks list in world &e{world}&a."
+disallowedblock-removed: "&aRemoved &e{block} &afrom disallowed blocks list in world &e{world}&a."
+disallowedblock-not-found: "&cBlock &e{block} &cis not on the disallowed list in world &e{world}&c!"
+disallowedblock-list-header: "&7Disallowed blocks in world &e{world}&7:"
+disallowedblock-list-item: "&7- &e{block}"
+disallowedblock-list-empty: "&7No disallowed blocks in world &e{world}&7."
+disallowedblock-prevented: "&cYou cannot place block &e{block} &cin this world!"
+
+# Block Destruction messages
+blockdestruction-set: "&aChanged block protection in world &e{world} &ato &e{status}&a."
+blockdestruction-info: "&7Block protection (only player-placed blocks can be destroyed) in world &e{world}&7: &e{status}"
+blockdestruction-prevented: "&cYou cannot break this block - it was not placed by a player!"
+
+# Help messages
+help-header: "&6&lGuardCore &7- Command list:"
+help-footer: "&7Use &e/guardcore help <command> &7for more information."
+help-command-not-found: "&cCommand &e{command} &cdoes not exist!"
+
+help-blockdespawntime: |
+  &6/guardcore set blockDespawnTime <world> <time>
+  &7Sets the time after which player-placed blocks will disappear.
+  &7Time format: &e1d2h30m15s &7(days, hours, minutes, seconds)
+  &6/guardcore info blockDespawnTime <world>
+  &7Shows current block despawn time.
+
+help-blockdespawn: |
+  &6/guardcore set blockDespawn <world> <true/false>
+  &7Enables/disables despawn of player-placed blocks.
+  &6/guardcore info blockDespawn <world>
+  &7Shows block despawn status.
+
+help-waterflow: |
+  &6/guardcore set waterFlow <world> <true/false>
+  &7Enables/disables water flow.
+  &6/guardcore info waterFlow <world>
+  &7Shows water flow status.
+
+help-lavaflow: |
+  &6/guardcore set lavaFlow <world> <true/false>
+  &7Enables/disables lava flow.
+  &6/guardcore info lavaFlow <world>
+  &7Shows lava flow status.
+
+help-entitylimit: |
+  &6/guardcore add entityLimit <world> <entity> <limit>
+  &7Sets maximum amount of entity in world.
+  &6/guardcore remove entityLimit <world> <entity>
+  &7Removes entity limit.
+  &6/guardcore info entityLimit <world> <entity>
+  &7Shows entity limit.
+
+help-entityspawntime: |
+  &6/guardcore set entitySpawnTime <world> <entity> <from> <to>
+  &7Sets hours when entity can spawn.
+  &7Time format: &e11:30 &7or &e18:20 &7(24h system, real time)
+  &6/guardcore remove entitySpawnTime <world> <entity>
+  &7Removes spawn time restriction.
+  &6/guardcore info entitySpawnTime <world> <entity>
+  &7Shows spawn time settings.
+
+help-blockredstonemechanism: |
+  &6/guardcore set blockRedstoneMechanism <world> <true/false>
+  &7Enables/disables redstone mechanisms (buttons, levers, torches, wires).
+  &6/guardcore info blockRedstoneMechanism <world>
+  &7Shows redstone mechanism status.
+
+help-entityspawnpoint: |
+  &6/guardcore add entitySpawnPoint <world> <entity> <name>
+  &7Creates spawn point at your location.
+  &6/guardcore remove entitySpawnPoint <world> <name>
+  &7Removes spawn point.
+  &6/guardcore info entitySpawnPoint <world>
+  &7Shows list of all spawn points.
+  &6/guardcore info entitySpawnPoint <world> <name>
+  &7Shows spawn point details.
+
+help-disallowedentity: |
+  &6/guardcore add disallowedEntity <world> <entity>
+  &7Adds entity to disallowed list.
+  &6/guardcore remove disallowedEntity <world> <entity>
+  &7Removes entity from disallowed list.
+  &6/guardcore info disallowedEntity <world>
+  &7Shows disallowed entities list.
+
+help-disallowedblock: |
+  &6/guardcore add disallowedBlock <world> <block>
+  &7Blocks placing of selected block.
+  &6/guardcore remove disallowedBlock <world> <block>
+  &7Removes block from disallowed list.
+  &6/guardcore info disallowedBlock <world>
+  &7Shows disallowed blocks list.
+
+help-blockdestruction: |
+  &6/guardcore set blockDestruction <world> <true/false>
+  &7When enabled, only player-placed blocks can be destroyed.
+  &6/guardcore info blockDestruction <world>
+  &7Shows block protection status.
+
+help-reload: |
+  &6/guardcore reload
+  &7Reloads plugin configuration.
+
+help-list: |
+  &e/guardcore set &7- Commands for setting values
+  &e/guardcore add &7- Commands for adding elements
+  &e/guardcore remove &7- Commands for removing elements
+  &e/guardcore info &7- Commands for showing information
+  &e/guardcore reload &7- Reloads plugin
+  &e/guardcore help <command> &7- Help for specific command
+  &7Available commands: &eblockDespawnTime, blockDespawn, waterFlow, lavaFlow,
+  &eentityLimit, entitySpawnTime, blockRedstoneMechanism, entitySpawnPoint,
+  &edisallowedEntity, disallowedBlock, blockDestruction, reload
+
+# Boolean display values
+boolean-true: "Enabled"
+boolean-false: "Disabled"

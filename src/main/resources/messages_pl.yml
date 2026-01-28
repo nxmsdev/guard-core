@@ -1,0 +1,178 @@
+# GuardCore Polish Messages
+# Author: nxmsdev | Website: www.nxms.dev
+
+prefix: "&8[&6GuardCore&8] "
+
+# General messages
+no-permission: "&cNie masz uprawnień do użycia tej komendy!"
+unknown-command: "&cNieznana komenda. Użyj &e/guardcore help &caby zobaczyć dostępne komendy."
+invalid-arguments: "&cNieprawidłowe argumenty. Użyj &e/guardcore help {command} &caby zobaczyć składnię."
+world-not-found: "&cŚwiat &e{world} &cnie istnieje!"
+invalid-boolean: "&cWartość musi być &etrue &club &efalse&c!"
+invalid-time-format: "&cNieprawidłowy format czasu! Użyj formatu: &e1d2h30m15s"
+invalid-time-range: "&cNieprawidłowy format godzin! Użyj formatu 24h: &e11:30 lub 18:20"
+invalid-entity: "&cEntity &e{entity} &cnie istnieje!"
+invalid-block: "&cBlok &e{block} &cnie istnieje!"
+reload-success: "&aPlugin został pomyślnie przeładowany!"
+
+# Block Despawn messages
+blockdespawn-set-time: "&aUstawiono czas despawnu bloków na świecie &e{world} &ana &e{time}&a."
+blockdespawn-set-enabled: "&aZmieniono status despawnu bloków na świecie &e{world} &ana &e{status}&a."
+blockdespawn-info: "&7Despawn bloków na świecie &e{world}&7:\n&7- Status: &e{status}\n&7- Czas: &e{time}"
+
+# Water/Lava Flow messages
+waterflow-set: "&aZmieniono rozlewanie się wody na świecie &e{world} &ana &e{status}&a."
+waterflow-info: "&7Rozlewanie wody na świecie &e{world}&7: &e{status}"
+lavaflow-set: "&aZmieniono rozlewanie się lawy na świecie &e{world} &ana &e{status}&a."
+lavaflow-info: "&7Rozlewanie lawy na świecie &e{world}&7: &e{status}"
+
+# Entity Limit messages
+entitylimit-added: "&aDodano limit &e{limit} &adla entity &e{entity} &ana świecie &e{world}&a."
+entitylimit-removed: "&aUsunięto limit dla entity &e{entity} &ana świecie &e{world}&a."
+entitylimit-info: "&7Limit entity &e{entity} &7na świecie &e{world}&7: &e{limit}"
+entitylimit-not-set: "&7Entity &e{entity} &7nie ma ustawionego limitu na świecie &e{world}&7."
+
+# Entity Spawn Time messages
+entityspawntime-set: "&aUstawiono czas spawnu entity &e{entity} &aod &e{from} &ado &e{to} &ana świecie &e{world}&a."
+entityspawntime-removed: "&aUsunięto blokadę czasową spawnu dla entity &e{entity} &ana świecie &e{world}&a."
+entityspawntime-info: "&7Czas spawnu entity &e{entity} &7na świecie &e{world}&7:\n&7- Od: &e{from}\n&7- Do: &e{to}"
+entityspawntime-not-set: "&7Entity &e{entity} &7nie ma ustawionego czasu spawnu na świecie &e{world}&7."
+
+# Redstone Mechanism messages
+redstonemechanism-set: "&aZmieniono blokowanie mechanizmów redstone na świecie &e{world} &ana &e{status}&a."
+redstonemechanism-info: "&7Blokowanie mechanizmów redstone na świecie &e{world}&7: &e{status}"
+
+# Entity Spawn Point messages
+entityspawnpoint-added: "&aDodano punkt spawnu &e{name} &adla entity &e{entity} &ana świecie &e{world}&a."
+entityspawnpoint-removed: "&aUsunięto punkt spawnu &e{name} &aze świata &e{world}&a."
+entityspawnpoint-not-found: "&cPunkt spawnu &e{name} &cnie istnieje na świecie &e{world}&c!"
+entityspawnpoint-list-header: "&7Punkty spawnu na świecie &e{world}&7:"
+entityspawnpoint-list-item: "&7- &e{name}&7: &a{entity} &7(&e{x}&7, &e{y}&7, &e{z}&7)"
+entityspawnpoint-list-empty: "&7Brak punktów spawnu na świecie &e{world}&7."
+entityspawnpoint-info: "&7Punkt spawnu &e{name} &7na świecie &e{world}&7:\n&7- Entity: &e{entity}\n&7- Pozycja: &e{x}&7, &e{y}&7, &e{z}"
+
+# Disallowed Entity messages
+disallowedentity-added: "&aDodano &e{entity} &ado listy zakazanych mobów na świecie &e{world}&a."
+disallowedentity-removed: "&aUsunięto &e{entity} &az listy zakazanych mobów na świecie &e{world}&a."
+disallowedentity-not-found: "&cEntity &e{entity} &cnie znajduje się na liście zakazanych na świecie &e{world}&c!"
+disallowedentity-list-header: "&7Zakazane entity na świecie &e{world}&7:"
+disallowedentity-list-item: "&7- &e{entity}"
+disallowedentity-list-empty: "&7Brak zakazanych entity na świecie &e{world}&7."
+
+# Disallowed Block messages
+disallowedblock-added: "&aDodano &e{block} &ado listy zakazanych bloków na świecie &e{world}&a."
+disallowedblock-removed: "&aUsunięto &e{block} &az listy zakazanych bloków na świecie &e{world}&a."
+disallowedblock-not-found: "&cBlok &e{block} &cnie znajduje się na liście zakazanych na świecie &e{world}&c!"
+disallowedblock-list-header: "&7Zakazane bloki na świecie &e{world}&7:"
+disallowedblock-list-item: "&7- &e{block}"
+disallowedblock-list-empty: "&7Brak zakazanych bloków na świecie &e{world}&7."
+disallowedblock-prevented: "&cNie możesz postawić bloku &e{block} &cna tym świecie!"
+
+# Block Destruction messages
+blockdestruction-set: "&aZmieniono ochronę bloków na świecie &e{world} &ana &e{status}&a."
+blockdestruction-info: "&7Ochrona bloków (tylko postawione przez graczy mogą być niszczone) na świecie &e{world}&7: &e{status}"
+blockdestruction-prevented: "&cNie możesz zniszczyć tego bloku - nie został postawiony przez gracza!"
+
+# Help messages
+help-header: "&6&lGuardCore &7- Lista komend:"
+help-footer: "&7Użyj &e/guardcore help <komenda> &7aby uzyskać więcej informacji."
+help-command-not-found: "&cKomenda &e{command} &cnie istnieje!"
+
+help-blockdespawntime: |
+  &6/guardcore set blockDespawnTime <świat> <czas>
+  &7Ustawia czas po jakim bloki postawione przez graczy znikną.
+  &7Format czasu: &e1d2h30m15s &7(dni, godziny, minuty, sekundy)
+  &6/guardcore info blockDespawnTime <świat>
+  &7Pokazuje aktualny czas despawnu bloków.
+
+help-blockdespawn: |
+  &6/guardcore set blockDespawn <świat> <true/false>
+  &7Włącza/wyłącza despawn bloków postawionych przez graczy.
+  &6/guardcore info blockDespawn <świat>
+  &7Pokazuje status despawnu bloków.
+
+help-waterflow: |
+  &6/guardcore set waterFlow <świat> <true/false>
+  &7Włącza/wyłącza rozlewanie się wody.
+  &6/guardcore info waterFlow <świat>
+  &7Pokazuje status rozlewania wody.
+
+help-lavaflow: |
+  &6/guardcore set lavaFlow <świat> <true/false>
+  &7Włącza/wyłącza rozlewanie się lawy.
+  &6/guardcore info lavaFlow <świat>
+  &7Pokazuje status rozlewania lawy.
+
+help-entitylimit: |
+  &6/guardcore add entityLimit <świat> <entity> <limit>
+  &7Ustawia maksymalną ilość danego entity na świecie.
+  &6/guardcore remove entityLimit <świat> <entity>
+  &7Usuwa limit dla danego entity.
+  &6/guardcore info entityLimit <świat> <entity>
+  &7Pokazuje limit danego entity.
+
+help-entityspawntime: |
+  &6/guardcore set entitySpawnTime <świat> <entity> <od> <do>
+  &7Ustawia godziny w których entity może się respić.
+  &7Format czasu: &e11:30 &7lub &e18:20 &7(system 24h, czas rzeczywisty)
+  &6/guardcore remove entitySpawnTime <świat> <entity>
+  &7Usuwa blokadę czasową spawnu.
+  &6/guardcore info entitySpawnTime <świat> <entity>
+  &7Pokazuje ustawiony czas spawnu.
+
+help-blockredstonemechanism: |
+  &6/guardcore set blockRedstoneMechanism <świat> <true/false>
+  &7Włącza/wyłącza mechanizmy redstone (przyciski, dźwignie, pochodnie, przewody).
+  &6/guardcore info blockRedstoneMechanism <świat>
+  &7Pokazuje status mechanizmów redstone.
+
+help-entityspawnpoint: |
+  &6/guardcore add entitySpawnPoint <świat> <entity> <nazwa>
+  &7Tworzy punkt spawnu w miejscu gdzie stoisz.
+  &6/guardcore remove entitySpawnPoint <świat> <nazwa>
+  &7Usuwa punkt spawnu.
+  &6/guardcore info entitySpawnPoint <świat>
+  &7Pokazuje listę wszystkich punktów spawnu.
+  &6/guardcore info entitySpawnPoint <świat> <nazwa>
+  &7Pokazuje szczegóły punktu spawnu.
+
+help-disallowedentity: |
+  &6/guardcore add disallowedEntity <świat> <entity>
+  &7Dodaje entity do listy zakazanych.
+  &6/guardcore remove disallowedEntity <świat> <entity>
+  &7Usuwa entity z listy zakazanych.
+  &6/guardcore info disallowedEntity <świat>
+  &7Pokazuje listę zakazanych entity.
+
+help-disallowedblock: |
+  &6/guardcore add disallowedBlock <świat> <blok>
+  &7Blokuje stawianie wybranego bloku.
+  &6/guardcore remove disallowedBlock <świat> <blok>
+  &7Usuwa blok z listy zakazanych.
+  &6/guardcore info disallowedBlock <świat>
+  &7Pokazuje listę zakazanych bloków.
+
+help-blockdestruction: |
+  &6/guardcore set blockDestruction <świat> <true/false>
+  &7Gdy włączone, tylko bloki postawione przez graczy mogą być niszczone.
+  &6/guardcore info blockDestruction <świat>
+  &7Pokazuje status ochrony bloków.
+
+help-reload: |
+  &6/guardcore reload
+  &7Przeładowuje konfigurację pluginu.
+
+help-list: |
+  &e/guardcore set &7- Komendy ustawiające wartości
+  &e/guardcore add &7- Komendy dodające elementy
+  &e/guardcore remove &7- Komendy usuwające elementy
+  &e/guardcore info &7- Komendy pokazujące informacje
+  &e/guardcore reload &7- Przeładowuje plugin
+  &e/guardcore help <komenda> &7- Pomoc dla konkretnej komendy
+  &7Dostępne komendy: &eblockDespawnTime, blockDespawn, waterFlow, lavaFlow,
+  &eentityLimit, entitySpawnTime, blockRedstoneMechanism, entitySpawnPoint,
+  &edisallowedEntity, disallowedBlock, blockDestruction, reload
+
+# Boolean display values
+boolean-true: "Włączony"
+boolean-false: "Wyłączony"

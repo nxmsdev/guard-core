@@ -1,0 +1,42 @@
+# GuardCore Configuration
+# Author: nxmsdev | Website: www.nxms.dev
+
+# Language setting (pl/en)
+language: pl
+
+# World settings - automatically generated when using commands
+worlds:
+  world:
+    # Block despawn settings
+    blockDespawn:
+      enabled: false
+      time: "1d0h0m0s"
+
+    # Fluid flow settings
+    waterFlow: true
+    lavaFlow: true
+
+    # Redstone mechanism settings
+    blockRedstoneMechanism: false
+
+    # Block destruction settings (true = only player-placed blocks can be destroyed)
+    blockDestruction: false
+
+    # Entity limits (entity: limit)
+    entityLimits: {}
+
+    # Entity spawn times (entity: {from: "HH:mm", to: "HH:mm"})
+    entitySpawnTimes: {}
+
+    # Entity spawn points (name: {entity: type, x: 0, y: 0, z: 0})
+    entitySpawnPoints: {}
+
+    # Disallowed entities (list)
+    disallowedEntities: []
+
+    # Disallowed blocks (list)
+    disallowedBlocks: []
+
+# Player-placed blocks tracking database
+# Format: "world:x:y:z" -> timestamp
+placedBlocks: {}

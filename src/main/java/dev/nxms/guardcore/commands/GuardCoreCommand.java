@@ -1,0 +1,1030 @@
+package dev.nxms.guardcore.commands;
+
+import dev.nxms.guardcore.GuardCore;
+import dev.nxms.guardcore.config.ConfigManager;
+import dev.nxms.guardcore.config.MessageManager;
+import dev.nxms.guardcore.utils.PermissionUtils;
+import dev.nxms.guardcore.utils.TimeParser;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+
+import java.util.List;
+import java.util.Map;
+
+public class GuardCoreCommand implements CommandExecutor {
+
+    private final GuardCore plugin;
+    private final ConfigManager config;
+    private final MessageManager messages;
+
+    public GuardCoreCommand(GuardCore plugin) {
+        this.plugin = plugin;
+        this.config = plugin.getConfigManager();
+        this.messages = plugin.getMessageManager();
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!PermissionUtils.hasCommandAccess(sender)) {
+            messages.send(sender, "no-permission");
+            return true;
+        }
+
+        if (args.length == 0) {
+            handleHelp(sender, null);
+            return true;
+        }
+
+        String subCommand = args[0].toLowerCase();
+
+        switch (subCommand) {
+            case "set":
+                handleSet(sender, args);
+                break;
+            case "add":
+                handleAdd(sender, args);
+                break;
+            case "remove":
+                handleRemove(sender, args);
+                break;
+            case "info":
+                handleInfo(sender, args);
+                break;
+            case "reload":
+                handleReload(sender);
+                break;
+            case "help":
+                handleHelp(sender, args.length > 1 ? args[1] : null);
+                break;
+            default:
+                messages.send(sender, "unknown-command");
+                break;
+        }
+
+        return true;
+    }
+
+    private void handleSet(CommandSender sender, String[] args) {
+        if (!PermissionUtils.hasSetPermission(sender)) {
+            messages.send(sender, "no-permission");
+            return;
+        }
+
+        if (args.length < 2) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "set"));
+            return;
+        }
+
+        String setting = args[1].toLowerCase();
+
+        switch (setting) {
+            case "blockdespawntime":
+                handleSetBlockDespawnTime(sender, args);
+                break;
+            case "blockdespawn":
+                handleSetBlockDespawn(sender, args);
+                break;
+            case "waterflow":
+                handleSetWaterFlow(sender, args);
+                break;
+            case "lavaflow":
+                handleSetLavaFlow(sender, args);
+                break;
+            case "blockredstonemechanism":
+                handleSetRedstoneMechanism(sender, args);
+                break;
+            case "blockdestruction":
+                handleSetBlockDestruction(sender, args);
+                break;
+            case "entityspawntime":
+                handleSetEntitySpawnTime(sender, args);
+                break;
+            default:
+                messages.send(sender, "unknown-command");
+                break;
+        }
+    }
+
+    private void handleAdd(CommandSender sender, String[] args) {
+        if (!PermissionUtils.hasAddPermission(sender)) {
+            messages.send(sender, "no-permission");
+            return;
+        }
+
+        if (args.length < 2) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "add"));
+            return;
+        }
+
+        String setting = args[1].toLowerCase();
+
+        switch (setting) {
+            case "entitylimit":
+                handleAddEntityLimit(sender, args);
+                break;
+            case "entityspawnpoint":
+                handleAddEntitySpawnPoint(sender, args);
+                break;
+            case "disallowedentity":
+                handleAddDisallowedEntity(sender, args);
+                break;
+            case "disallowedblock":
+                handleAddDisallowedBlock(sender, args);
+                break;
+            default:
+                messages.send(sender, "unknown-command");
+                break;
+        }
+    }
+
+    private void handleRemove(CommandSender sender, String[] args) {
+        if (!PermissionUtils.hasRemovePermission(sender)) {
+            messages.send(sender, "no-permission");
+            return;
+        }
+
+        if (args.length < 2) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "remove"));
+            return;
+        }
+
+        String setting = args[1].toLowerCase();
+
+        switch (setting) {
+            case "entitylimit":
+                handleRemoveEntityLimit(sender, args);
+                break;
+            case "entityspawntime":
+                handleRemoveEntitySpawnTime(sender, args);
+                break;
+            case "entityspawnpoint":
+                handleRemoveEntitySpawnPoint(sender, args);
+                break;
+            case "disallowedentity":
+                handleRemoveDisallowedEntity(sender, args);
+                break;
+            case "disallowedblock":
+                handleRemoveDisallowedBlock(sender, args);
+                break;
+            default:
+                messages.send(sender, "unknown-command");
+                break;
+        }
+    }
+
+    private void handleInfo(CommandSender sender, String[] args) {
+        if (!PermissionUtils.hasInfoPermission(sender)) {
+            messages.send(sender, "no-permission");
+            return;
+        }
+
+        if (args.length < 2) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "info"));
+            return;
+        }
+
+        String setting = args[1].toLowerCase();
+
+        switch (setting) {
+            case "blockdespawntime":
+            case "blockdespawn":
+                handleInfoBlockDespawn(sender, args);
+                break;
+            case "waterflow":
+                handleInfoWaterFlow(sender, args);
+                break;
+            case "lavaflow":
+                handleInfoLavaFlow(sender, args);
+                break;
+            case "entitylimit":
+                handleInfoEntityLimit(sender, args);
+                break;
+            case "entityspawntime":
+                handleInfoEntitySpawnTime(sender, args);
+                break;
+            case "blockredstonemechanism":
+                handleInfoRedstoneMechanism(sender, args);
+                break;
+            case "entityspawnpoint":
+                handleInfoEntitySpawnPoint(sender, args);
+                break;
+            case "disallowedentity":
+                handleInfoDisallowedEntity(sender, args);
+                break;
+            case "disallowedblock":
+                handleInfoDisallowedBlock(sender, args);
+                break;
+            case "blockdestruction":
+                handleInfoBlockDestruction(sender, args);
+                break;
+            default:
+                messages.send(sender, "unknown-command");
+                break;
+        }
+    }
+
+    private void handleSetBlockDespawnTime(CommandSender sender, String[] args) {
+        if (args.length < 4) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "blockDespawnTime"));
+            return;
+        }
+
+        String worldName = args[2];
+        String time = args[3];
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        if (!TimeParser.isValidDuration(time)) {
+            messages.send(sender, "invalid-time-format");
+            return;
+        }
+
+        config.setBlockDespawnTime(worldName, time);
+        messages.send(sender, "blockdespawn-set-time", MessageManager.placeholders(
+                "world", worldName,
+                "time", time
+        ));
+    }
+
+    private void handleSetBlockDespawn(CommandSender sender, String[] args) {
+        if (args.length < 4) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "blockDespawn"));
+            return;
+        }
+
+        String worldName = args[2];
+        String value = args[3].toLowerCase();
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        if (!value.equals("true") && !value.equals("false")) {
+            messages.send(sender, "invalid-boolean");
+            return;
+        }
+
+        boolean enabled = Boolean.parseBoolean(value);
+        config.setBlockDespawnEnabled(worldName, enabled);
+
+        messages.send(sender, "blockdespawn-set-enabled", MessageManager.placeholders(
+                "world", worldName,
+                "status", messages.getBooleanDisplay(enabled)
+        ));
+    }
+
+    private void handleSetWaterFlow(CommandSender sender, String[] args) {
+        if (args.length < 4) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "waterFlow"));
+            return;
+        }
+
+        String worldName = args[2];
+        String value = args[3].toLowerCase();
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        if (!value.equals("true") && !value.equals("false")) {
+            messages.send(sender, "invalid-boolean");
+            return;
+        }
+
+        boolean enabled = Boolean.parseBoolean(value);
+        config.setWaterFlowEnabled(worldName, enabled);
+
+        messages.send(sender, "waterflow-set", MessageManager.placeholders(
+                "world", worldName,
+                "status", messages.getBooleanDisplay(enabled)
+        ));
+    }
+
+    private void handleSetLavaFlow(CommandSender sender, String[] args) {
+        if (args.length < 4) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "lavaFlow"));
+            return;
+        }
+
+        String worldName = args[2];
+        String value = args[3].toLowerCase();
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        if (!value.equals("true") && !value.equals("false")) {
+            messages.send(sender, "invalid-boolean");
+            return;
+        }
+
+        boolean enabled = Boolean.parseBoolean(value);
+        config.setLavaFlowEnabled(worldName, enabled);
+
+        messages.send(sender, "lavaflow-set", MessageManager.placeholders(
+                "world", worldName,
+                "status", messages.getBooleanDisplay(enabled)
+        ));
+    }
+
+    private void handleSetRedstoneMechanism(CommandSender sender, String[] args) {
+        if (args.length < 4) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "blockRedstoneMechanism"));
+            return;
+        }
+
+        String worldName = args[2];
+        String value = args[3].toLowerCase();
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        if (!value.equals("true") && !value.equals("false")) {
+            messages.send(sender, "invalid-boolean");
+            return;
+        }
+
+        boolean blocked = Boolean.parseBoolean(value);
+        config.setRedstoneMechanismBlocked(worldName, blocked);
+
+        messages.send(sender, "redstonemechanism-set", MessageManager.placeholders(
+                "world", worldName,
+                "status", messages.getBooleanDisplay(blocked)
+        ));
+    }
+
+    private void handleSetBlockDestruction(CommandSender sender, String[] args) {
+        if (args.length < 4) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "blockDestruction"));
+            return;
+        }
+
+        String worldName = args[2];
+        String value = args[3].toLowerCase();
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        if (!value.equals("true") && !value.equals("false")) {
+            messages.send(sender, "invalid-boolean");
+            return;
+        }
+
+        boolean protection = Boolean.parseBoolean(value);
+        config.setBlockDestructionProtected(worldName, protection);
+
+        messages.send(sender, "blockdestruction-set", MessageManager.placeholders(
+                "world", worldName,
+                "status", messages.getBooleanDisplay(protection)
+        ));
+    }
+
+    private void handleSetEntitySpawnTime(CommandSender sender, String[] args) {
+        if (args.length < 6) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "entitySpawnTime"));
+            return;
+        }
+
+        String worldName = args[2];
+        String entityName = args[3].toUpperCase();
+        String from = args[4];
+        String to = args[5];
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        if (!isValidEntity(entityName)) {
+            messages.send(sender, "invalid-entity", MessageManager.placeholders("entity", entityName));
+            return;
+        }
+
+        if (!TimeParser.isValidTimeOfDay(from) || !TimeParser.isValidTimeOfDay(to)) {
+            messages.send(sender, "invalid-time-range");
+            return;
+        }
+
+        config.setEntitySpawnTime(worldName, entityName, from, to);
+
+        messages.send(sender, "entityspawntime-set", MessageManager.placeholders(
+                "entity", entityName,
+                "from", from,
+                "to", to,
+                "world", worldName
+        ));
+    }
+
+    private void handleAddEntityLimit(CommandSender sender, String[] args) {
+        if (args.length < 5) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "entityLimit"));
+            return;
+        }
+
+        String worldName = args[2];
+        String entityName = args[3].toUpperCase();
+        String limitStr = args[4];
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        if (!isValidEntity(entityName)) {
+            messages.send(sender, "invalid-entity", MessageManager.placeholders("entity", entityName));
+            return;
+        }
+
+        int limit;
+        try {
+            limit = Integer.parseInt(limitStr);
+            if (limit < 0) throw new NumberFormatException();
+        } catch (NumberFormatException e) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "entityLimit"));
+            return;
+        }
+
+        config.setEntityLimit(worldName, entityName, limit);
+
+        messages.send(sender, "entitylimit-added", MessageManager.placeholders(
+                "limit", String.valueOf(limit),
+                "entity", entityName,
+                "world", worldName
+        ));
+    }
+
+    private void handleAddEntitySpawnPoint(CommandSender sender, String[] args) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("§cTa komenda może być użyta tylko przez gracza!");
+            return;
+        }
+
+        if (args.length < 5) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "entitySpawnPoint"));
+            return;
+        }
+
+        Player player = (Player) sender;
+        String worldName = args[2];
+        String entityName = args[3].toUpperCase();
+        String pointName = args[4];
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        if (!isValidEntity(entityName)) {
+            messages.send(sender, "invalid-entity", MessageManager.placeholders("entity", entityName));
+            return;
+        }
+
+        Location location = player.getLocation();
+        config.addEntitySpawnPoint(worldName, pointName, entityName, location);
+
+        messages.send(sender, "entityspawnpoint-added", MessageManager.placeholders(
+                "name", pointName,
+                "entity", entityName,
+                "world", worldName
+        ));
+    }
+
+    private void handleAddDisallowedEntity(CommandSender sender, String[] args) {
+        if (args.length < 4) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "disallowedEntity"));
+            return;
+        }
+
+        String worldName = args[2];
+        String entityName = args[3].toUpperCase();
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        if (!isValidEntity(entityName)) {
+            messages.send(sender, "invalid-entity", MessageManager.placeholders("entity", entityName));
+            return;
+        }
+
+        config.addDisallowedEntity(worldName, entityName);
+
+        messages.send(sender, "disallowedentity-added", MessageManager.placeholders(
+                "entity", entityName,
+                "world", worldName
+        ));
+    }
+
+    private void handleAddDisallowedBlock(CommandSender sender, String[] args) {
+        if (args.length < 4) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "disallowedBlock"));
+            return;
+        }
+
+        String worldName = args[2];
+        String blockName = args[3].toUpperCase();
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        if (!isValidBlock(blockName)) {
+            messages.send(sender, "invalid-block", MessageManager.placeholders("block", blockName));
+            return;
+        }
+
+        config.addDisallowedBlock(worldName, blockName);
+
+        messages.send(sender, "disallowedblock-added", MessageManager.placeholders(
+                "block", blockName,
+                "world", worldName
+        ));
+    }
+
+    private void handleRemoveEntityLimit(CommandSender sender, String[] args) {
+        if (args.length < 4) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "entityLimit"));
+            return;
+        }
+
+        String worldName = args[2];
+        String entityName = args[3].toUpperCase();
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        config.removeEntityLimit(worldName, entityName);
+
+        messages.send(sender, "entitylimit-removed", MessageManager.placeholders(
+                "entity", entityName,
+                "world", worldName
+        ));
+    }
+
+    private void handleRemoveEntitySpawnTime(CommandSender sender, String[] args) {
+        if (args.length < 4) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "entitySpawnTime"));
+            return;
+        }
+
+        String worldName = args[2];
+        String entityName = args[3].toUpperCase();
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        config.removeEntitySpawnTime(worldName, entityName);
+
+        messages.send(sender, "entityspawntime-removed", MessageManager.placeholders(
+                "entity", entityName,
+                "world", worldName
+        ));
+    }
+
+    private void handleRemoveEntitySpawnPoint(CommandSender sender, String[] args) {
+        if (args.length < 4) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "entitySpawnPoint"));
+            return;
+        }
+
+        String worldName = args[2];
+        String pointName = args[3];
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        if (config.getEntitySpawnPoint(worldName, pointName) == null) {
+            messages.send(sender, "entityspawnpoint-not-found", MessageManager.placeholders(
+                    "name", pointName,
+                    "world", worldName
+            ));
+            return;
+        }
+
+        config.removeEntitySpawnPoint(worldName, pointName);
+
+        messages.send(sender, "entityspawnpoint-removed", MessageManager.placeholders(
+                "name", pointName,
+                "world", worldName
+        ));
+    }
+
+    private void handleRemoveDisallowedEntity(CommandSender sender, String[] args) {
+        if (args.length < 4) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "disallowedEntity"));
+            return;
+        }
+
+        String worldName = args[2];
+        String entityName = args[3].toUpperCase();
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        if (!config.isEntityDisallowed(worldName, entityName)) {
+            messages.send(sender, "disallowedentity-not-found", MessageManager.placeholders(
+                    "entity", entityName,
+                    "world", worldName
+            ));
+            return;
+        }
+
+        config.removeDisallowedEntity(worldName, entityName);
+
+        messages.send(sender, "disallowedentity-removed", MessageManager.placeholders(
+                "entity", entityName,
+                "world", worldName
+        ));
+    }
+
+    private void handleRemoveDisallowedBlock(CommandSender sender, String[] args) {
+        if (args.length < 4) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "disallowedBlock"));
+            return;
+        }
+
+        String worldName = args[2];
+        String blockName = args[3].toUpperCase();
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        if (!config.isBlockDisallowed(worldName, blockName)) {
+            messages.send(sender, "disallowedblock-not-found", MessageManager.placeholders(
+                    "block", blockName,
+                    "world", worldName
+            ));
+            return;
+        }
+
+        config.removeDisallowedBlock(worldName, blockName);
+
+        messages.send(sender, "disallowedblock-removed", MessageManager.placeholders(
+                "block", blockName,
+                "world", worldName
+        ));
+    }
+
+    private void handleInfoBlockDespawn(CommandSender sender, String[] args) {
+        if (args.length < 3) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "blockDespawn"));
+            return;
+        }
+
+        String worldName = args[2];
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        boolean enabled = config.isBlockDespawnEnabled(worldName);
+        String time = config.getBlockDespawnTime(worldName);
+
+        messages.send(sender, "blockdespawn-info", MessageManager.placeholders(
+                "world", worldName,
+                "status", messages.getBooleanDisplay(enabled),
+                "time", time
+        ));
+    }
+
+    private void handleInfoWaterFlow(CommandSender sender, String[] args) {
+        if (args.length < 3) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "waterFlow"));
+            return;
+        }
+
+        String worldName = args[2];
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        boolean enabled = config.isWaterFlowEnabled(worldName);
+
+        messages.send(sender, "waterflow-info", MessageManager.placeholders(
+                "world", worldName,
+                "status", messages.getBooleanDisplay(enabled)
+        ));
+    }
+
+    private void handleInfoLavaFlow(CommandSender sender, String[] args) {
+        if (args.length < 3) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "lavaFlow"));
+            return;
+        }
+
+        String worldName = args[2];
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        boolean enabled = config.isLavaFlowEnabled(worldName);
+
+        messages.send(sender, "lavaflow-info", MessageManager.placeholders(
+                "world", worldName,
+                "status", messages.getBooleanDisplay(enabled)
+        ));
+    }
+
+    private void handleInfoEntityLimit(CommandSender sender, String[] args) {
+        if (args.length < 4) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "entityLimit"));
+            return;
+        }
+
+        String worldName = args[2];
+        String entityName = args[3].toUpperCase();
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        int limit = config.getEntityLimit(worldName, entityName);
+
+        if (limit == -1) {
+            messages.send(sender, "entitylimit-not-set", MessageManager.placeholders(
+                    "entity", entityName,
+                    "world", worldName
+            ));
+        } else {
+            messages.send(sender, "entitylimit-info", MessageManager.placeholders(
+                    "entity", entityName,
+                    "world", worldName,
+                    "limit", String.valueOf(limit)
+            ));
+        }
+    }
+
+    private void handleInfoEntitySpawnTime(CommandSender sender, String[] args) {
+        if (args.length < 4) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "entitySpawnTime"));
+            return;
+        }
+
+        String worldName = args[2];
+        String entityName = args[3].toUpperCase();
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        String[] times = config.getEntitySpawnTime(worldName, entityName);
+
+        if (times == null) {
+            messages.send(sender, "entityspawntime-not-set", MessageManager.placeholders(
+                    "entity", entityName,
+                    "world", worldName
+            ));
+        } else {
+            messages.send(sender, "entityspawntime-info", MessageManager.placeholders(
+                    "entity", entityName,
+                    "world", worldName,
+                    "from", times[0],
+                    "to", times[1]
+            ));
+        }
+    }
+
+    private void handleInfoRedstoneMechanism(CommandSender sender, String[] args) {
+        if (args.length < 3) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "blockRedstoneMechanism"));
+            return;
+        }
+
+        String worldName = args[2];
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        boolean blocked = config.isRedstoneMechanismBlocked(worldName);
+
+        messages.send(sender, "redstonemechanism-info", MessageManager.placeholders(
+                "world", worldName,
+                "status", messages.getBooleanDisplay(blocked)
+        ));
+    }
+
+    private void handleInfoEntitySpawnPoint(CommandSender sender, String[] args) {
+        if (args.length < 3) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "entitySpawnPoint"));
+            return;
+        }
+
+        String worldName = args[2];
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        if (args.length >= 4) {
+            String pointName = args[3];
+            Map<String, Object> point = config.getEntitySpawnPoint(worldName, pointName);
+
+            if (point == null) {
+                messages.send(sender, "entityspawnpoint-not-found", MessageManager.placeholders(
+                        "name", pointName,
+                        "world", worldName
+                ));
+                return;
+            }
+
+            messages.send(sender, "entityspawnpoint-info", MessageManager.placeholders(
+                    "name", pointName,
+                    "world", worldName,
+                    "entity", (String) point.get("entity"),
+                    "x", String.format("%.2f", (Double) point.get("x")),
+                    "y", String.format("%.2f", (Double) point.get("y")),
+                    "z", String.format("%.2f", (Double) point.get("z"))
+            ));
+        } else {
+            Map<String, Map<String, Object>> points = config.getAllEntitySpawnPoints(worldName);
+
+            if (points.isEmpty()) {
+                messages.send(sender, "entityspawnpoint-list-empty", MessageManager.placeholders("world", worldName));
+                return;
+            }
+
+            messages.send(sender, "entityspawnpoint-list-header", MessageManager.placeholders("world", worldName));
+
+            for (Map.Entry<String, Map<String, Object>> entry : points.entrySet()) {
+                Map<String, Object> point = entry.getValue();
+                messages.sendRaw(sender, "entityspawnpoint-list-item", MessageManager.placeholders(
+                        "name", entry.getKey(),
+                        "entity", (String) point.get("entity"),
+                        "x", String.format("%.0f", (Double) point.get("x")),
+                        "y", String.format("%.0f", (Double) point.get("y")),
+                        "z", String.format("%.0f", (Double) point.get("z"))
+                ));
+            }
+        }
+    }
+
+    private void handleInfoDisallowedEntity(CommandSender sender, String[] args) {
+        if (args.length < 3) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "disallowedEntity"));
+            return;
+        }
+
+        String worldName = args[2];
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        List<String> entities = config.getDisallowedEntities(worldName);
+
+        if (entities.isEmpty()) {
+            messages.send(sender, "disallowedentity-list-empty", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        messages.send(sender, "disallowedentity-list-header", MessageManager.placeholders("world", worldName));
+
+        for (String entity : entities) {
+            messages.sendRaw(sender, "disallowedentity-list-item", MessageManager.placeholders("entity", entity));
+        }
+    }
+
+    private void handleInfoDisallowedBlock(CommandSender sender, String[] args) {
+        if (args.length < 3) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "disallowedBlock"));
+            return;
+        }
+
+        String worldName = args[2];
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        List<String> blocks = config.getDisallowedBlocks(worldName);
+
+        if (blocks.isEmpty()) {
+            messages.send(sender, "disallowedblock-list-empty", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        messages.send(sender, "disallowedblock-list-header", MessageManager.placeholders("world", worldName));
+
+        for (String block : blocks) {
+            messages.sendRaw(sender, "disallowedblock-list-item", MessageManager.placeholders("block", block));
+        }
+    }
+
+    private void handleInfoBlockDestruction(CommandSender sender, String[] args) {
+        if (args.length < 3) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "blockDestruction"));
+            return;
+        }
+
+        String worldName = args[2];
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        boolean protection = config.isBlockDestructionProtected(worldName);
+
+        messages.send(sender, "blockdestruction-info", MessageManager.placeholders(
+                "world", worldName,
+                "status", messages.getBooleanDisplay(protection)
+        ));
+    }
+
+    private void handleReload(CommandSender sender) {
+        if (!PermissionUtils.hasReloadPermission(sender)) {
+            messages.send(sender, "no-permission");
+            return;
+        }
+
+        plugin.reload();
+        messages.send(sender, "reload-success");
+    }
+
+    private void handleHelp(CommandSender sender, String command) {
+        if (!PermissionUtils.hasHelpPermission(sender)) {
+            messages.send(sender, "no-permission");
+            return;
+        }
+
+        if (command == null) {
+            messages.sendRaw(sender, "help-header");
+            messages.sendRaw(sender, "help-list");
+            messages.sendRaw(sender, "help-footer");
+            return;
+        }
+
+        String helpKey = "help-" + command.toLowerCase();
+        String helpMessage = messages.getRaw(helpKey);
+
+        if (helpMessage.startsWith("§cMissing message:") || helpMessage.contains("Missing message")) {
+            messages.send(sender, "help-command-not-found", MessageManager.placeholders("command", command));
+            return;
+        }
+
+        messages.sendRaw(sender, helpKey);
+    }
+
+    private boolean isValidWorld(String worldName) {
+        return Bukkit.getWorld(worldName) != null;
+    }
+
+    private boolean isValidEntity(String entityName) {
+        try {
+            EntityType.valueOf(entityName.toUpperCase());
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    private boolean isValidBlock(String blockName) {
+        try {
+            Material material = Material.valueOf(blockName.toUpperCase());
+            return material.isBlock();
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+}
