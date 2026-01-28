@@ -987,32 +987,53 @@ public class GuardCoreCommand implements CommandExecutor {
     }
 
     private void handleInfoEntityLimit(CommandSender sender, String[] args) {
-        if (args.length < 4) {
+        if (args.length < 3) {
             messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "entityLimit"));
             return;
         }
 
         String worldName = args[2];
-        String entityName = args[3].toUpperCase();
 
         if (!isValidWorld(worldName)) {
             messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
             return;
         }
 
-        int limit = config.getEntityLimit(worldName, entityName);
+        // Jeśli podano entity - pokaż limit dla konkretnego entity
+        if (args.length >= 4) {
+            String entityName = args[3].toUpperCase();
 
-        if (limit == -1) {
-            messages.send(sender, "entitylimit-not-set", MessageManager.placeholders(
-                    "entity", entityName,
-                    "world", worldName
-            ));
+            int limit = config.getEntityLimit(worldName, entityName);
+
+            if (limit == -1) {
+                messages.send(sender, "entitylimit-not-set", MessageManager.placeholders(
+                        "entity", entityName,
+                        "world", worldName
+                ));
+            } else {
+                messages.send(sender, "entitylimit-info", MessageManager.placeholders(
+                        "entity", entityName,
+                        "world", worldName,
+                        "limit", String.valueOf(limit)
+                ));
+            }
         } else {
-            messages.send(sender, "entitylimit-info", MessageManager.placeholders(
-                    "entity", entityName,
-                    "world", worldName,
-                    "limit", String.valueOf(limit)
-            ));
+            // Pokaż wszystkie limity dla świata
+            Map<String, Integer> limits = config.getEntityLimits(worldName);
+
+            if (limits.isEmpty()) {
+                messages.send(sender, "entitylimit-list-empty", MessageManager.placeholders("world", worldName));
+                return;
+            }
+
+            messages.send(sender, "entitylimit-list-header", MessageManager.placeholders("world", worldName));
+
+            for (Map.Entry<String, Integer> entry : limits.entrySet()) {
+                messages.sendRaw(sender, "entitylimit-list-item", MessageManager.placeholders(
+                        "entity", entry.getKey(),
+                        "limit", String.valueOf(entry.getValue())
+                ));
+            }
         }
     }
 

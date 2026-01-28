@@ -36,6 +36,9 @@ entitylimit-added: "&aDodano limit &e{limit} &adla entity &e{entity} &ana świec
 entitylimit-removed: "&aUsunięto limit dla entity &e{entity} &ana świecie &e{world}&a."
 entitylimit-info: "&7Limit entity &e{entity} &7na świecie &e{world}&7: &e{limit}"
 entitylimit-not-set: "&7Entity &e{entity} &7nie ma ustawionego limitu na świecie &e{world}&7."
+entitylimit-list-header: "&7Limity entity na świecie &e{world}&7:"
+entitylimit-list-item: "&7- &e{entity}&7: &a{limit}"
+entitylimit-list-empty: "&7Brak ustawionych limitów entity na świecie &e{world}&7."
 
 # Entity Spawn Time messages
 entityspawntime-set: "&aUstawiono czas spawnu entity &e{entity} &aod &e{from} &ado &e{to} &ana świecie &e{world}&a."

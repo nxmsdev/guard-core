@@ -36,6 +36,9 @@ entitylimit-added: "&aAdded limit of &e{limit} &afor entity &e{entity} &ain worl
 entitylimit-removed: "&aRemoved limit for entity &e{entity} &ain world &e{world}&a."
 entitylimit-info: "&7Entity &e{entity} &7limit in world &e{world}&7: &e{limit}"
 entitylimit-not-set: "&7Entity &e{entity} &7has no limit set in world &e{world}&7."
+entitylimit-list-header: "&7Entity limits in world &e{world}&7:"
+entitylimit-list-item: "&7- &e{entity}&7: &a{limit}"
+entitylimit-list-empty: "&7No entity limits set in world &e{world}&7."
 
 # Entity Spawn Time messages
 entityspawntime-set: "&aSet spawn time for entity &e{entity} &afrom &e{from} &ato &e{to} &ain world &e{world}&a."
