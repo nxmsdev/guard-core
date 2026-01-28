@@ -26,6 +26,11 @@ waterflow-info: "&7Water flow in world &e{world}&7: &e{status}"
 lavaflow-set: "&aChanged lava flow in world &e{world} &ato &e{status}&a."
 lavaflow-info: "&7Lava flow in world &e{world}&7: &e{status}"
 
+# Entity spawn messages
+entity-spawn-blocked: "&cYou cannot spawn &e{entity} &cin this world!"
+entity-limit-reached: "&cEntity limit for &e{entity} &chas been reached!"
+entity-spawn-time-blocked: "&cYou cannot spawn &e{entity} &cat this time!"
+
 # Entity Limit messages
 entitylimit-added: "&aAdded limit of &e{limit} &afor entity &e{entity} &ain world &e{world}&a."
 entitylimit-removed: "&aRemoved limit for entity &e{entity} &ain world &e{world}&a."

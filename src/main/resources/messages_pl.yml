@@ -26,6 +26,11 @@ waterflow-info: "&7Rozlewanie wody na świecie &e{world}&7: &e{status}"
 lavaflow-set: "&aZmieniono rozlewanie się lawy na świecie &e{world} &ana &e{status}&a."
 lavaflow-info: "&7Rozlewanie lawy na świecie &e{world}&7: &e{status}"
 
+# Entity spawn messages
+entity-spawn-blocked: "&cNie możesz zespawnować &e{entity} &cna tym świecie!"
+entity-limit-reached: "&cOsiągnięto limit &e{entity} &cna tym świecie!"
+entity-spawn-time-blocked: "&cNie możesz zespawnować &e{entity} &co tej godzinie!"
+
 # Entity Limit messages
 entitylimit-added: "&aDodano limit &e{limit} &adla entity &e{entity} &ana świecie &e{world}&a."
 entitylimit-removed: "&aUsunięto limit dla entity &e{entity} &ana świecie &e{world}&a."

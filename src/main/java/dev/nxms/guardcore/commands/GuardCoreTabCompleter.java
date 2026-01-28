@@ -47,26 +47,41 @@ public class GuardCoreTabCompleter implements TabCompleter {
     private static final List<String> BOOLEAN_VALUES = Arrays.asList("true", "false");
 
     private static final List<String> DURATION_EXAMPLES = Arrays.asList(
-            // Ticki
             "1t", "5t", "10t", "20t",
-            // Milisekundy
             "50ms", "100ms", "250ms", "500ms",
-            // Sekundy
             "1s", "5s", "10s", "30s",
-            // Ułamki sekund
             "0.5s", "1.5s", "2.5s",
-            // Minuty
             "1m", "5m", "10m", "30m",
-            // Godziny
             "1h", "6h", "12h",
-            // Dni
             "1d", "7d",
-            // Kombinacje
             "1s500ms", "1s10t", "1m30s", "1h30m", "1d12h"
     );
 
     private static final List<String> TIME_OF_DAY_EXAMPLES = Arrays.asList(
-            "00:00", "06:00", "08:00", "12:00", "14:00", "18:00", "20:00", "22:00"
+            "00:00", "00:30",
+            "01:00", "01:30",
+            "02:00", "02:30",
+            "03:00", "03:30",
+            "04:00", "04:30",
+            "05:00", "05:30",
+            "06:00", "06:30",
+            "07:00", "07:30",
+            "08:00", "08:30",
+            "09:00", "09:30",
+            "10:00", "10:30",
+            "11:00", "11:30",
+            "12:00", "12:30",
+            "13:00", "13:30",
+            "14:00", "14:30",
+            "15:00", "15:30",
+            "16:00", "16:30",
+            "17:00", "17:30",
+            "18:00", "18:30",
+            "19:00", "19:30",
+            "20:00", "20:30",
+            "21:00", "21:30",
+            "22:00", "22:30",
+            "23:00", "23:30"
     );
 
     private static final List<String> LIMIT_EXAMPLES = Arrays.asList(
