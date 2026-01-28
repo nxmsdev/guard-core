@@ -78,6 +78,14 @@ blockdestruction-set: "&aZmieniono ochronę bloków na świecie &e{world} &ana &
 blockdestruction-info: "&7Ochrona bloków (tylko postawione przez graczy mogą być niszczone) na świecie &e{world}&7: &e{status}"
 blockdestruction-prevented: "&cNie możesz zniszczyć tego bloku - nie został postawiony przez gracza!"
 
+# Bypass messages
+player-only-command: "&cTa komenda może być użyta tylko przez gracza!"
+bypass-disallowedblocks-set: "&aBypass zakazanych bloków: &e{status}"
+bypass-info: |
+  &6&lGuardCore &7- Bypass
+  &7Bypass zakazanych bloków: &e{status}
+  &7Użycie: &e/gc bypass disallowedBlocks [true/false]
+
 # Help messages
 help-header: "&6&lGuardCore &7- Lista komend:"
 help-footer: "&7Użyj &e/guardcore help <komenda> &7aby uzyskać więcej informacji."
@@ -177,6 +185,12 @@ help-list: |
   &7Dostępne komendy: &eblockDespawnTime, blockDespawn, waterFlow, lavaFlow,
   &eentityLimit, entitySpawnTime, blockRedstoneMechanism, entitySpawnPoint,
   &edisallowedEntity, disallowedBlock, blockDestruction, reload
+
+help-bypass: |
+  &6/guardcore bypass disallowedBlocks [true/false]
+  &7Włącza/wyłącza bypass na stawianie zakazanych bloków.
+  &7Wymaga uprawnienia: &eguardcore.bypass
+  &7Bypass jest domyślnie wyłączony.
 
 # Boolean display values
 boolean-true: "Włączony"

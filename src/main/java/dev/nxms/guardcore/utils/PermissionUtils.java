@@ -57,6 +57,13 @@ public class PermissionUtils {
     }
 
     /**
+     * Sprawdza czy gracz ma dostęp do komendy bypass.
+     */
+    public static boolean hasBypassPermission(CommandSender sender) {
+        return hasPermission(sender, "guardcore.bypass");
+    }
+
+    /**
      * Sprawdza czy gracz ma podstawowy dostęp do komend guardcore.
      */
     public static boolean hasCommandAccess(CommandSender sender) {

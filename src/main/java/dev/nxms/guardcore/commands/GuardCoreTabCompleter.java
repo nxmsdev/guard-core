@@ -41,7 +41,11 @@ public class GuardCoreTabCompleter implements TabCompleter {
     private static final List<String> HELP_COMMANDS = Arrays.asList(
             "blockDespawnTime", "blockDespawn", "waterFlow", "lavaFlow",
             "entityLimit", "entitySpawnTime", "blockRedstoneMechanism",
-            "entitySpawnPoint", "disallowedEntity", "disallowedBlock", "blockDestruction", "reload"
+            "entitySpawnPoint", "disallowedEntity", "disallowedBlock", "blockDestruction", "reload", "bypass"
+    );
+
+    private static final List<String> BYPASS_TYPES = Arrays.asList(
+            "disallowedBlocks"
     );
 
     private static final List<String> BOOLEAN_VALUES = Arrays.asList("true", "false");
@@ -148,6 +152,9 @@ public class GuardCoreTabCompleter implements TabCompleter {
         if (PermissionUtils.hasHelpPermission(sender)) {
             commands.add("help");
         }
+        if (PermissionUtils.hasBypassPermission(sender)) {
+            commands.add("bypass");
+        }
 
         return commands;
     }
@@ -179,6 +186,11 @@ public class GuardCoreTabCompleter implements TabCompleter {
                     return new ArrayList<>(HELP_COMMANDS);
                 }
                 break;
+            case "bypass":
+                if (PermissionUtils.hasBypassPermission(sender)) {
+                    return new ArrayList<>(BYPASS_TYPES);
+                }
+                break;
         }
         return new ArrayList<>();
     }
@@ -188,6 +200,11 @@ public class GuardCoreTabCompleter implements TabCompleter {
 
         if (action.equals("set") || action.equals("add") || action.equals("remove") || action.equals("info")) {
             return getWorldNames();
+        }
+
+        // bypass disallowedBlocks <true/false>
+        if (action.equals("bypass") && secondArg.equalsIgnoreCase("disallowedBlocks")) {
+            return new ArrayList<>(BOOLEAN_VALUES);
         }
 
         return new ArrayList<>();

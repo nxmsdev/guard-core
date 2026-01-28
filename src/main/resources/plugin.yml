@@ -28,6 +28,7 @@ permissions:
       guardcore.info: true
       guardcore.help: true
       guardcore.reload: true
+      guardcore.bypass: true
   guardcore.set:
     description: Access to /guardcore set commands
     default: op
@@ -45,4 +46,7 @@ permissions:
     default: op
   guardcore.reload:
     description: Access to /guardcore reload command
+    default: op
+  guardcore.bypass:
+    description: Access to /guardcore bypass command
     default: op

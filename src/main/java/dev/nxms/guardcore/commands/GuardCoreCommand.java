@@ -62,12 +62,83 @@ public class GuardCoreCommand implements CommandExecutor {
             case "help":
                 handleHelp(sender, args.length > 1 ? args[1] : null);
                 break;
+            case "bypass":
+                handleBypass(sender, args);
+                break;
             default:
                 messages.send(sender, "unknown-command");
                 break;
         }
 
         return true;
+    }
+
+    private void handleBypass(CommandSender sender, String[] args) {
+        if (!(sender instanceof Player)) {
+            messages.send(sender, "player-only-command");
+            return;
+        }
+
+        if (!PermissionUtils.hasBypassPermission(sender)) {
+            messages.send(sender, "no-permission");
+            return;
+        }
+
+        Player player = (Player) sender;
+
+        if (args.length < 2) {
+            handleBypassHelp(player);
+            return;
+        }
+
+        String bypassType = args[1].toLowerCase();
+
+        switch (bypassType) {
+            case "disallowedblocks":
+                handleBypassDisallowedBlocks(player, args);
+                break;
+            default:
+                handleBypassHelp(player);
+                break;
+        }
+    }
+
+    private void handleBypassDisallowedBlocks(Player player, String[] args) {
+        boolean newState;
+
+        if (args.length < 3) {
+            // Toggle
+            newState = plugin.getBypassManager().toggleDisallowedBlocksBypass(player.getUniqueId());
+        } else {
+            String value = args[2].toLowerCase();
+            switch (value) {
+                case "true":
+                case "on":
+                case "tak":
+                case "1":
+                    newState = true;
+                    break;
+                case "false":
+                case "off":
+                case "nie":
+                case "0":
+                    newState = false;
+                    break;
+                default:
+                    messages.send(player, "invalid-boolean");
+                    return;
+            }
+            plugin.getBypassManager().setDisallowedBlocksBypass(player.getUniqueId(), newState);
+        }
+
+        messages.send(player, "bypass-disallowedblocks-set",
+                MessageManager.placeholders("status", messages.getBooleanDisplay(newState)));
+    }
+
+    private void handleBypassHelp(Player player) {
+        boolean currentStatus = plugin.getBypassManager().hasDisallowedBlocksBypass(player.getUniqueId());
+        messages.send(player, "bypass-info",
+                MessageManager.placeholders("status", messages.getBooleanDisplay(currentStatus)));
     }
 
     private void handleSet(CommandSender sender, String[] args) {
@@ -471,7 +542,7 @@ public class GuardCoreCommand implements CommandExecutor {
 
     private void handleAddEntitySpawnPoint(CommandSender sender, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage("§cTa komenda może być użyta tylko przez gracza!");
+            messages.send(sender, "player-only-command");
             return;
         }
 

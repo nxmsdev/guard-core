@@ -33,10 +33,17 @@ public class BlockListener implements Listener {
 
         // Sprawdź czy blok jest na liście zakazanych
         if (config.isBlockDisallowed(worldName, blockType)) {
-            event.setCancelled(true);
-            messages.send(player, "disallowedblock-prevented",
-                    MessageManager.placeholders("block", blockType));
-            return;
+            // Sprawdź czy gracz ma bypass
+            if (player.hasPermission("guardcore.bypass")
+                    && plugin.getBypassManager().hasDisallowedBlocksBypass(player.getUniqueId())) {
+                // Gracz ma bypass - pozwól na postawienie, ale nadal rejestruj blok
+            } else {
+                // Brak bypass - zablokuj
+                event.setCancelled(true);
+                messages.send(player, "disallowedblock-prevented",
+                        MessageManager.placeholders("block", blockType));
+                return;
+            }
         }
 
         // Rejestruj blok TYLKO jeśli blockDespawn jest włączony LUB blockDestruction jest wyłączony

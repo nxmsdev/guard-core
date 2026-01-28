@@ -4,14 +4,8 @@ import dev.nxms.guardcore.commands.GuardCoreCommand;
 import dev.nxms.guardcore.commands.GuardCoreTabCompleter;
 import dev.nxms.guardcore.config.ConfigManager;
 import dev.nxms.guardcore.config.MessageManager;
-import dev.nxms.guardcore.listeners.BlockListener;
-import dev.nxms.guardcore.listeners.EntityListener;
-import dev.nxms.guardcore.listeners.FluidListener;
-import dev.nxms.guardcore.listeners.RedstoneListener;
-import dev.nxms.guardcore.managers.BlockDespawnManager;
-import dev.nxms.guardcore.managers.EntityLimitManager;
-import dev.nxms.guardcore.managers.EntitySpawnPointManager;
-import dev.nxms.guardcore.managers.EntitySpawnTimeManager;
+import dev.nxms.guardcore.listeners.*;
+import dev.nxms.guardcore.managers.*;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -27,6 +21,7 @@ public class GuardCore extends JavaPlugin {
     private EntityLimitManager entityLimitManager;
     private EntitySpawnTimeManager entitySpawnTimeManager;
     private EntitySpawnPointManager entitySpawnPointManager;
+    private BypassManager bypassManager;
 
     @Override
     public void onEnable() {
@@ -57,6 +52,11 @@ public class GuardCore extends JavaPlugin {
             blockDespawnManager.shutdown();
         }
 
+        // Wyczyść bypassy
+        if (bypassManager != null) {
+            bypassManager.clearAll();
+        }
+
         getLogger().info("GuardCore has been disabled!");
     }
 
@@ -70,6 +70,7 @@ public class GuardCore extends JavaPlugin {
         entityLimitManager = new EntityLimitManager(this);
         entitySpawnTimeManager = new EntitySpawnTimeManager(this);
         entitySpawnPointManager = new EntitySpawnPointManager(this);
+        bypassManager = new BypassManager();
     }
 
     /**
@@ -91,6 +92,7 @@ public class GuardCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new EntityListener(this), this);
         getServer().getPluginManager().registerEvents(new FluidListener(this), this);
         getServer().getPluginManager().registerEvents(new RedstoneListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
     }
 
     /**
@@ -132,5 +134,9 @@ public class GuardCore extends JavaPlugin {
 
     public EntitySpawnPointManager getEntitySpawnPointManager() {
         return entitySpawnPointManager;
+    }
+
+    public BypassManager getBypassManager() {
+        return bypassManager;
     }
 }

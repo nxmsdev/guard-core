@@ -78,6 +78,14 @@ blockdestruction-set: "&aChanged block protection in world &e{world} &ato &e{sta
 blockdestruction-info: "&7Block protection (only player-placed blocks can be destroyed) in world &e{world}&7: &e{status}"
 blockdestruction-prevented: "&cYou cannot break this block - it was not placed by a player!"
 
+# Bypass messages
+player-only-command: "&cThis command can only be used by players!"
+bypass-disallowedblocks-set: "&aDisallowed blocks bypass: &e{status}"
+bypass-info: |
+  &6&lGuardCore &7- Bypass
+  &7Disallowed blocks bypass: &e{status}
+  &7Usage: &e/gc bypass disallowedBlocks [true/false]
+
 # Help messages
 help-header: "&6&lGuardCore &7- Command list:"
 help-footer: "&7Use &e/guardcore help <command> &7for more information."
@@ -177,6 +185,12 @@ help-list: |
   &7Available commands: &eblockDespawnTime, blockDespawn, waterFlow, lavaFlow,
   &eentityLimit, entitySpawnTime, blockRedstoneMechanism, entitySpawnPoint,
   &edisallowedEntity, disallowedBlock, blockDestruction, reload
+
+help-bypass: |
+  &6/guardcore bypass disallowedBlocks [true/false]
+  &7Enables/disables bypass for placing disallowed blocks.
+  &7Requires permission: &eguardcore.bypass
+  &7Bypass is disabled by default.
 
 # Boolean display values
 boolean-true: "Enabled"
