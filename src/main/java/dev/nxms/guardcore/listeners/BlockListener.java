@@ -4,6 +4,7 @@ import dev.nxms.guardcore.GuardCore;
 import dev.nxms.guardcore.config.ConfigManager;
 import dev.nxms.guardcore.config.MessageManager;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,6 +12,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
 
 public class BlockListener implements Listener {
 
@@ -62,6 +64,19 @@ public class BlockListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onBucketEmpty(PlayerBucketEmptyEvent event) {
+        Player player = event.getPlayer();
+        Block block = event.getBlock();
+        Material bucket = event.getBucket();
+
+        // Sprawdź czy to woda lub lawa
+        if (bucket == Material.WATER_BUCKET || bucket == Material.LAVA_BUCKET) {
+            // Rejestruj płyn z UUID gracza
+            config.addPlacedFluid(block.getLocation(), player.getUniqueId());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         Block block = event.getBlock();
@@ -90,5 +105,8 @@ public class BlockListener implements Listener {
 
         // Usuń blok z rejestru
         config.removePlacedBlock(location);
+
+        // Usuń też z rejestru płynów (jeśli to był płyn)
+        config.removePlacedFluid(location);
     }
 }

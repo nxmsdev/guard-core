@@ -12,6 +12,8 @@ public class BypassManager {
     private final Map<UUID, Boolean> disallowedBlocksBypass = new HashMap<>();
     private final Map<UUID, Boolean> blockDespawnBypass = new HashMap<>();
     private final Map<UUID, Boolean> blockDestructionBypass = new HashMap<>();
+    private final Map<UUID, Boolean> waterFlowBypass = new HashMap<>();
+    private final Map<UUID, Boolean> lavaFlowBypass = new HashMap<>();
 
     // ===== DISALLOWED BLOCKS BYPASS =====
 
@@ -103,6 +105,66 @@ public class BypassManager {
         return newState;
     }
 
+    // ===== WATER FLOW BYPASS =====
+
+    /**
+     * Sprawdza czy gracz ma włączony bypass na rozlewanie wody.
+     */
+    public boolean hasWaterFlowBypass(UUID uuid) {
+        return waterFlowBypass.getOrDefault(uuid, false);
+    }
+
+    /**
+     * Ustawia bypass na rozlewanie wody dla gracza.
+     */
+    public void setWaterFlowBypass(UUID uuid, boolean enabled) {
+        if (enabled) {
+            waterFlowBypass.put(uuid, true);
+        } else {
+            waterFlowBypass.remove(uuid);
+        }
+    }
+
+    /**
+     * Przełącza bypass rozlewania wody dla gracza.
+     * @return nowy stan bypass
+     */
+    public boolean toggleWaterFlowBypass(UUID uuid) {
+        boolean newState = !hasWaterFlowBypass(uuid);
+        setWaterFlowBypass(uuid, newState);
+        return newState;
+    }
+
+    // ===== LAVA FLOW BYPASS =====
+
+    /**
+     * Sprawdza czy gracz ma włączony bypass na rozlewanie lawy.
+     */
+    public boolean hasLavaFlowBypass(UUID uuid) {
+        return lavaFlowBypass.getOrDefault(uuid, false);
+    }
+
+    /**
+     * Ustawia bypass na rozlewanie lawy dla gracza.
+     */
+    public void setLavaFlowBypass(UUID uuid, boolean enabled) {
+        if (enabled) {
+            lavaFlowBypass.put(uuid, true);
+        } else {
+            lavaFlowBypass.remove(uuid);
+        }
+    }
+
+    /**
+     * Przełącza bypass rozlewania lawy dla gracza.
+     * @return nowy stan bypass
+     */
+    public boolean toggleLavaFlowBypass(UUID uuid) {
+        boolean newState = !hasLavaFlowBypass(uuid);
+        setLavaFlowBypass(uuid, newState);
+        return newState;
+    }
+
     // ===== COMMON =====
 
     /**
@@ -112,6 +174,8 @@ public class BypassManager {
         disallowedBlocksBypass.remove(uuid);
         blockDespawnBypass.remove(uuid);
         blockDestructionBypass.remove(uuid);
+        waterFlowBypass.remove(uuid);
+        lavaFlowBypass.remove(uuid);
     }
 
     /**
@@ -121,5 +185,7 @@ public class BypassManager {
         disallowedBlocksBypass.clear();
         blockDespawnBypass.clear();
         blockDestructionBypass.clear();
+        waterFlowBypass.clear();
+        lavaFlowBypass.clear();
     }
 }

@@ -37,7 +37,6 @@ public class GuardCore extends JavaPlugin {
         registerListeners();
 
         getLogger().info("GuardCore has been enabled!");
-        getLogger().info("Author: nxmsdev | Website: www.nxms.dev");
     }
 
     @Override

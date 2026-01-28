@@ -83,16 +83,22 @@ player-only-command: "&cThis command can only be used by players!"
 bypass-disallowedblocks-set: "&aDisallowed blocks bypass: &e{status}"
 bypass-blockdespawn-set: "&aBlock despawn bypass: &e{status}"
 bypass-blockdestruction-set: "&aBlock destruction bypass: &e{status}"
+bypass-waterflow-set: "&aWater flow bypass: &e{status}"
+bypass-lavaflow-set: "&aLava flow bypass: &e{status}"
 bypass-info: |
   &6&lGuardCore &7- Bypass
   &7Disallowed blocks bypass: &e{disallowedblocks_status}
   &7Block despawn bypass: &e{blockdespawn_status}
   &7Block destruction bypass: &e{blockdestruction_status}
+  &7Water flow bypass: &e{waterflow_status}
+  &7Lava flow bypass: &e{lavaflow_status}
   &7
   &7Usage:
   &e/gc bypass disallowedBlocks [true/false]
   &e/gc bypass blockDespawn [true/false]
   &e/gc bypass blockDestruction [true/false]
+  &e/gc bypass waterFlow [true/false]
+  &e/gc bypass lavaFlow [true/false]
 
 
 # Help messages
@@ -202,6 +208,10 @@ help-bypass: |
   &7Enables/disables bypass for block despawn.
   &6/guardcore bypass blockDestruction [true/false]
   &7Enables/disables bypass for destroying all blocks.
+  &6/guardcore bypass waterFlow [true/false]
+  &7Enables/disables bypass for water flow.
+  &6/guardcore bypass lavaFlow [true/false]
+  &7Enables/disables bypass for lava flow.
   &7Requires permission: &eguardcore.bypass
   &7Bypass is disabled by default.
 

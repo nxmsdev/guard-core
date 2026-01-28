@@ -75,6 +75,8 @@ public class GuardCoreCommand implements CommandExecutor {
 
     // ===== BYPASS COMMANDS =====
 
+    // ===== BYPASS COMMANDS =====
+
     private void handleBypass(CommandSender sender, String[] args) {
         if (!(sender instanceof Player)) {
             messages.send(sender, "player-only-command");
@@ -105,6 +107,12 @@ public class GuardCoreCommand implements CommandExecutor {
             case "blockdestruction":
                 handleBypassBlockDestruction(player, args);
                 break;
+            case "waterflow":
+                handleBypassWaterFlow(player, args);
+                break;
+            case "lavaflow":
+                handleBypassLavaFlow(player, args);
+                break;
             default:
                 handleBypassHelp(player);
                 break;
@@ -115,7 +123,6 @@ public class GuardCoreCommand implements CommandExecutor {
         boolean newState;
 
         if (args.length < 3) {
-            // Toggle
             newState = plugin.getBypassManager().toggleDisallowedBlocksBypass(player.getUniqueId());
         } else {
             String value = args[2].toLowerCase();
@@ -147,7 +154,6 @@ public class GuardCoreCommand implements CommandExecutor {
         boolean newState;
 
         if (args.length < 3) {
-            // Toggle
             newState = plugin.getBypassManager().toggleBlockDespawnBypass(player.getUniqueId());
         } else {
             String value = args[2].toLowerCase();
@@ -179,7 +185,6 @@ public class GuardCoreCommand implements CommandExecutor {
         boolean newState;
 
         if (args.length < 3) {
-            // Toggle
             newState = plugin.getBypassManager().toggleBlockDestructionBypass(player.getUniqueId());
         } else {
             String value = args[2].toLowerCase();
@@ -207,15 +212,81 @@ public class GuardCoreCommand implements CommandExecutor {
                 MessageManager.placeholders("status", messages.getBooleanDisplay(newState)));
     }
 
+    private void handleBypassWaterFlow(Player player, String[] args) {
+        boolean newState;
+
+        if (args.length < 3) {
+            newState = plugin.getBypassManager().toggleWaterFlowBypass(player.getUniqueId());
+        } else {
+            String value = args[2].toLowerCase();
+            switch (value) {
+                case "true":
+                case "on":
+                case "tak":
+                case "1":
+                    newState = true;
+                    break;
+                case "false":
+                case "off":
+                case "nie":
+                case "0":
+                    newState = false;
+                    break;
+                default:
+                    messages.send(player, "invalid-boolean");
+                    return;
+            }
+            plugin.getBypassManager().setWaterFlowBypass(player.getUniqueId(), newState);
+        }
+
+        messages.send(player, "bypass-waterflow-set",
+                MessageManager.placeholders("status", messages.getBooleanDisplay(newState)));
+    }
+
+    private void handleBypassLavaFlow(Player player, String[] args) {
+        boolean newState;
+
+        if (args.length < 3) {
+            newState = plugin.getBypassManager().toggleLavaFlowBypass(player.getUniqueId());
+        } else {
+            String value = args[2].toLowerCase();
+            switch (value) {
+                case "true":
+                case "on":
+                case "tak":
+                case "1":
+                    newState = true;
+                    break;
+                case "false":
+                case "off":
+                case "nie":
+                case "0":
+                    newState = false;
+                    break;
+                default:
+                    messages.send(player, "invalid-boolean");
+                    return;
+            }
+            plugin.getBypassManager().setLavaFlowBypass(player.getUniqueId(), newState);
+        }
+
+        messages.send(player, "bypass-lavaflow-set",
+                MessageManager.placeholders("status", messages.getBooleanDisplay(newState)));
+    }
+
     private void handleBypassHelp(Player player) {
         boolean disallowedBlocksStatus = plugin.getBypassManager().hasDisallowedBlocksBypass(player.getUniqueId());
         boolean blockDespawnStatus = plugin.getBypassManager().hasBlockDespawnBypass(player.getUniqueId());
         boolean blockDestructionStatus = plugin.getBypassManager().hasBlockDestructionBypass(player.getUniqueId());
+        boolean waterFlowStatus = plugin.getBypassManager().hasWaterFlowBypass(player.getUniqueId());
+        boolean lavaFlowStatus = plugin.getBypassManager().hasLavaFlowBypass(player.getUniqueId());
 
         messages.send(player, "bypass-info", MessageManager.placeholders(
                 "disallowedblocks_status", messages.getBooleanDisplay(disallowedBlocksStatus),
                 "blockdespawn_status", messages.getBooleanDisplay(blockDespawnStatus),
-                "blockdestruction_status", messages.getBooleanDisplay(blockDestructionStatus)
+                "blockdestruction_status", messages.getBooleanDisplay(blockDestructionStatus),
+                "waterflow_status", messages.getBooleanDisplay(waterFlowStatus),
+                "lavaflow_status", messages.getBooleanDisplay(lavaFlowStatus)
         ));
     }
 

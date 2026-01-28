@@ -47,7 +47,9 @@ public class GuardCoreTabCompleter implements TabCompleter {
     private static final List<String> BYPASS_TYPES = Arrays.asList(
             "disallowedBlocks",
             "blockDespawn",
-            "blockDestruction"
+            "blockDestruction",
+            "waterFlow",
+            "lavaFlow"
     );
 
     private static final List<String> BOOLEAN_VALUES = Arrays.asList("true", "false");

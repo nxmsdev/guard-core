@@ -18,10 +18,12 @@ public class ConfigManager {
 
     // Zmieniona struktura: przechowuje też UUID gracza który postawił blok
     private Map<String, PlacedBlockData> placedBlocks;
+    private Map<String, UUID> placedFluids;
 
     public ConfigManager(GuardCore plugin) {
         this.plugin = plugin;
         this.placedBlocks = new HashMap<>();
+        this.placedFluids = new HashMap<>();
         loadConfig();
     }
 
@@ -490,5 +492,47 @@ public class ConfigManager {
                 config.set("placedBlocks." + safeKey + ".player", data.getPlayerUUID().toString());
             }
         }
+    }
+// Dodaj te metody na końcu klasy, przed ostatnim }:
+
+// ===== PLACED FLUIDS TRACKING =====
+
+    /**
+     * Dodaje płyn do rejestru.
+     */
+    public void addPlacedFluid(Location location, UUID playerUUID) {
+        String key = locationToKey(location);
+        placedFluids.put(key, playerUUID);
+    }
+
+    /**
+     * Usuwa płyn z rejestru.
+     */
+    public void removePlacedFluid(Location location) {
+        String key = locationToKey(location);
+        placedFluids.remove(key);
+    }
+
+    /**
+     * Pobiera UUID gracza który postawił płyn.
+     */
+    public UUID getFluidPlacedByPlayerUUID(Location location) {
+        String key = locationToKey(location);
+        return placedFluids.get(key);
+    }
+
+    /**
+     * Pobiera UUID gracza który postawił płyn (po kluczu).
+     */
+    public UUID getFluidPlacedByPlayerUUID(String key) {
+        return placedFluids.get(key);
+    }
+
+    /**
+     * Sprawdza czy płyn był postawiony przez gracza.
+     */
+    public boolean isFluidPlacedByPlayer(Location location) {
+        String key = locationToKey(location);
+        return placedFluids.containsKey(key);
     }
 }
