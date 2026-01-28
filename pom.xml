@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>dev.nxms</groupId>
-    <artifactId>guardcore</artifactId>
-    <version>1.0.1</version>
+    <artifactId>GuardCore</artifactId>
+    <version>1.0.2</version>
     <packaging>jar</packaging>
 
-    <name>guardcore</name>
+    <name>GuardCore</name>
 
     <properties>
         <java.version>21</java.version>
