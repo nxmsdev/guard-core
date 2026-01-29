@@ -1,6 +1,6 @@
 # GuardCore
 
-An advanced PaperMC world protection and modification plugin for Minecraft 1.21.
+An advanced PaperMC world protection and modification plugin for Minecraft 1.21.1.
 
 ## Features
 
