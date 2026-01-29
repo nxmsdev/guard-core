@@ -613,7 +613,7 @@ public class GuardCoreCommand implements CommandExecutor {
             return;
         }
 
-        if (args.length < 5) {
+        if (args.length < 6) {
             messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "entitySpawnPoint"));
             return;
         }
@@ -622,6 +622,7 @@ public class GuardCoreCommand implements CommandExecutor {
         String worldName = args[2];
         String entityName = args[3].toUpperCase();
         String pointName = args[4];
+        String intervalStr = args[5].toLowerCase();
 
         if (!isValidWorld(worldName)) {
             messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
@@ -633,14 +634,111 @@ public class GuardCoreCommand implements CommandExecutor {
             return;
         }
 
-        Location location = player.getLocation();
-        config.addEntitySpawnPoint(worldName, pointName, entityName, location);
+        // Parsuj interwał używając TimeParser
+        if (!TimeParser.isValidDuration(intervalStr)) {
+            messages.send(sender, "invalid-interval");
+            return;
+        }
 
+        long intervalMs = TimeParser.parseDuration(intervalStr);
+        long intervalTicks = intervalMs / 50; // 1 tick = 50ms
+
+        if (intervalTicks <= 0) {
+            messages.send(sender, "invalid-interval");
+            return;
+        }
+
+        Location location = player.getLocation();
+        config.addEntitySpawnPoint(worldName, pointName, entityName, location, intervalTicks);
+
+        // Przeładuj EntitySpawnPointManager żeby uwzględnił nowy punkt
+        plugin.getEntitySpawnPointManager().reload();
+
+        String intervalDisplay = TimeParser.formatDuration(intervalMs);
         messages.send(sender, "entityspawnpoint-added", MessageManager.placeholders(
                 "name", pointName,
                 "entity", entityName,
-                "world", worldName
+                "world", worldName,
+                "interval", intervalDisplay
         ));
+    }
+
+    private void handleInfoEntitySpawnPoint(CommandSender sender, String[] args) {
+        if (args.length < 3) {
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "entitySpawnPoint"));
+            return;
+        }
+
+        String worldName = args[2];
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        if (args.length >= 4) {
+            String pointName = args[3];
+            Map<String, Object> point = config.getEntitySpawnPoint(worldName, pointName);
+
+            if (point == null) {
+                messages.send(sender, "entityspawnpoint-not-found", MessageManager.placeholders(
+                        "name", pointName,
+                        "world", worldName
+                ));
+                return;
+            }
+
+            long intervalTicks = (Long) point.get("interval");
+            long intervalMs = intervalTicks * 50;
+            String intervalDisplay = TimeParser.formatDuration(intervalMs);
+
+            messages.send(sender, "entityspawnpoint-info", MessageManager.placeholders(
+                    "name", pointName,
+                    "world", worldName,
+                    "entity", (String) point.get("entity"),
+                    "x", String.format("%.2f", (Double) point.get("x")),
+                    "y", String.format("%.2f", (Double) point.get("y")),
+                    "z", String.format("%.2f", (Double) point.get("z")),
+                    "interval", intervalDisplay
+            ));
+        } else {
+            Map<String, Map<String, Object>> points = config.getAllEntitySpawnPoints(worldName);
+
+            if (points.isEmpty()) {
+                messages.send(sender, "entityspawnpoint-list-empty", MessageManager.placeholders("world", worldName));
+                return;
+            }
+
+            messages.send(sender, "entityspawnpoint-list-header", MessageManager.placeholders("world", worldName));
+
+            for (Map.Entry<String, Map<String, Object>> entry : points.entrySet()) {
+                Map<String, Object> point = entry.getValue();
+                long intervalTicks = (Long) point.get("interval");
+                long intervalMs = intervalTicks * 50;
+                String intervalDisplay = TimeParser.formatDuration(intervalMs);
+
+                messages.sendRaw(sender, "entityspawnpoint-list-item", MessageManager.placeholders(
+                        "name", entry.getKey(),
+                        "entity", (String) point.get("entity"),
+                        "x", String.format("%.0f", (Double) point.get("x")),
+                        "y", String.format("%.0f", (Double) point.get("y")),
+                        "z", String.format("%.0f", (Double) point.get("z")),
+                        "interval", intervalDisplay
+                ));
+            }
+        }
+    }
+
+    // Dodaj tę metodę pomocniczą na końcu klasy (przed ostatnim }):
+    private String formatInterval(long ticks) {
+        if (ticks % 20 == 0) {
+            long seconds = ticks / 20;
+            if (seconds >= 60 && seconds % 60 == 0) {
+                return (seconds / 60) + "m";
+            }
+            return seconds + "s";
+        }
+        return ticks + "t";
     }
 
     private void handleAddDisallowedEntity(CommandSender sender, String[] args) {
@@ -801,6 +899,9 @@ public class GuardCoreCommand implements CommandExecutor {
         }
 
         config.removeEntitySpawnPoint(worldName, pointName);
+
+        // WAŻNE: natychmiast zatrzymaj task dla tego punktu
+        plugin.getEntitySpawnPointManager().removeSpawnPoint(worldName, pointName);
 
         messages.send(sender, "entityspawnpoint-removed", MessageManager.placeholders(
                 "name", pointName,
@@ -1087,62 +1188,6 @@ public class GuardCoreCommand implements CommandExecutor {
                 "world", worldName,
                 "status", messages.getBooleanDisplay(blocked)
         ));
-    }
-
-    private void handleInfoEntitySpawnPoint(CommandSender sender, String[] args) {
-        if (args.length < 3) {
-            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "entitySpawnPoint"));
-            return;
-        }
-
-        String worldName = args[2];
-
-        if (!isValidWorld(worldName)) {
-            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
-            return;
-        }
-
-        if (args.length >= 4) {
-            String pointName = args[3];
-            Map<String, Object> point = config.getEntitySpawnPoint(worldName, pointName);
-
-            if (point == null) {
-                messages.send(sender, "entityspawnpoint-not-found", MessageManager.placeholders(
-                        "name", pointName,
-                        "world", worldName
-                ));
-                return;
-            }
-
-            messages.send(sender, "entityspawnpoint-info", MessageManager.placeholders(
-                    "name", pointName,
-                    "world", worldName,
-                    "entity", (String) point.get("entity"),
-                    "x", String.format("%.2f", (Double) point.get("x")),
-                    "y", String.format("%.2f", (Double) point.get("y")),
-                    "z", String.format("%.2f", (Double) point.get("z"))
-            ));
-        } else {
-            Map<String, Map<String, Object>> points = config.getAllEntitySpawnPoints(worldName);
-
-            if (points.isEmpty()) {
-                messages.send(sender, "entityspawnpoint-list-empty", MessageManager.placeholders("world", worldName));
-                return;
-            }
-
-            messages.send(sender, "entityspawnpoint-list-header", MessageManager.placeholders("world", worldName));
-
-            for (Map.Entry<String, Map<String, Object>> entry : points.entrySet()) {
-                Map<String, Object> point = entry.getValue();
-                messages.sendRaw(sender, "entityspawnpoint-list-item", MessageManager.placeholders(
-                        "name", entry.getKey(),
-                        "entity", (String) point.get("entity"),
-                        "x", String.format("%.0f", (Double) point.get("x")),
-                        "y", String.format("%.0f", (Double) point.get("y")),
-                        "z", String.format("%.0f", (Double) point.get("z"))
-                ));
-            }
-        }
     }
 
     private void handleInfoDisallowedEntity(CommandSender sender, String[] args) {

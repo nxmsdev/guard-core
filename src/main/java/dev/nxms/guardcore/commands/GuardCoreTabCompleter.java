@@ -55,58 +55,42 @@ public class GuardCoreTabCompleter implements TabCompleter {
     private static final List<String> BOOLEAN_VALUES = Arrays.asList("true", "false");
 
     private static final List<String> DURATION_EXAMPLES = Arrays.asList(
-            "1t", "5t", "10t", "20t",
-            "50ms", "100ms", "250ms", "500ms",
-            "1s", "5s", "10s", "30s",
-            "0.5s", "1.5s", "2.5s",
-            "1m", "5m", "10m", "30m",
-            "1h", "6h", "12h",
-            "1d", "7d",
-            "1s500ms", "1s10t", "1m30s", "1h30m", "1d12h"
+            "<duration>",
+            "<ticks:t>",
+            "<milliseconds:ms>",
+            "<seconds:s>",
+            "<minutes:m>",
+            "<hours:h>",
+            "<days:d>"
     );
 
     private static final List<String> TIME_OF_DAY_EXAMPLES = Arrays.asList(
-            "00:00", "00:30",
-            "01:00", "01:30",
-            "02:00", "02:30",
-            "03:00", "03:30",
-            "04:00", "04:30",
-            "05:00", "05:30",
-            "06:00", "06:30",
-            "07:00", "07:30",
-            "08:00", "08:30",
-            "09:00", "09:30",
-            "10:00", "10:30",
-            "11:00", "11:30",
-            "12:00", "12:30",
-            "13:00", "13:30",
-            "14:00", "14:30",
-            "15:00", "15:30",
-            "16:00", "16:30",
-            "17:00", "17:30",
-            "18:00", "18:30",
-            "19:00", "19:30",
-            "20:00", "20:30",
-            "21:00", "21:30",
-            "22:00", "22:30",
-            "23:00", "23:30"
+            "<hour>:<minute>"
     );
 
     private static final List<String> LIMIT_EXAMPLES = Arrays.asList(
-            "1", "5", "10", "25", "50", "100", "250", "500"
+            "<limit>"
     );
 
     private static final List<String> SPAWN_POINT_NAME_EXAMPLES = Arrays.asList(
-            "spawn1", "spawn2", "spawn3",
-            "point1", "point2", "point3",
-            "zombie_spawn", "skeleton_spawn", "creeper_spawn",
-            "north", "south", "east", "west", "center"
+            "<spawn_point_name>"
     );
 
     public GuardCoreTabCompleter(GuardCore plugin) {
         this.plugin = plugin;
     }
 
+    private static final List<String> INTERVAL_EXAMPLES = Arrays.asList(
+            "<interval>",
+            "<ticks:t>",
+            "<milliseconds:ms>",
+            "<seconds:s>",
+            "<minutes:m>",
+            "<hours:h>",
+            "<days:d>"
+    );
+
+    // Zmień metodę onTabComplete - dodaj case 7:
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (!PermissionUtils.hasCommandAccess(sender)) {
@@ -132,7 +116,7 @@ public class GuardCoreTabCompleter implements TabCompleter {
                 completions = getFifthArguments(sender, args[0], args[1], args[2]);
                 break;
             case 6:
-                completions = getSixthArguments(sender, args[0], args[1]);
+                completions = getSixthArguments(sender, args[0], args[1], args[2]);
                 break;
         }
 
@@ -318,12 +302,16 @@ public class GuardCoreTabCompleter implements TabCompleter {
         return new ArrayList<>();
     }
 
-    private List<String> getSixthArguments(CommandSender sender, String firstArg, String secondArg) {
+    private List<String> getSixthArguments(CommandSender sender, String firstArg, String secondArg, String thirdArg) {
         String action = firstArg.toLowerCase();
         String setting = secondArg.toLowerCase();
 
         if (action.equals("set") && setting.equals("entityspawntime")) {
             return new ArrayList<>(TIME_OF_DAY_EXAMPLES);
+        }
+
+        if (action.equals("add") && setting.equals("entityspawnpoint")) {
+            return new ArrayList<>(INTERVAL_EXAMPLES);
         }
 
         return new ArrayList<>();

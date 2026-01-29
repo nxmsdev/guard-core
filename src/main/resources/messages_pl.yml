@@ -1,5 +1,4 @@
 # GuardCore Polish Messages
-# Author: nxmsdev | Website: www.nxms.dev
 
 prefix: "&8[&6GuardCore&8] "
 
@@ -13,6 +12,7 @@ invalid-time-format: "&cNieprawidłowy format czasu! Użyj formatu: &e1d2h30m15s
 invalid-time-range: "&cNieprawidłowy format godzin! Użyj formatu 24h: &e11:30 lub 18:20"
 invalid-entity: "&cEntity &e{entity} &cnie istnieje!"
 invalid-block: "&cBlok &e{block} &cnie istnieje!"
+invalid-interval: "&cNieprawidłowy format interwału! Użyj formatu: &e30s &c(sekundy), &e5m &c(minuty) lub &e100t &c(ticki)"
 reload-success: "&aPlugin został pomyślnie przeładowany!"
 
 # Block Despawn messages
@@ -51,13 +51,13 @@ redstonemechanism-set: "&aZmieniono blokowanie mechanizmów redstone na świecie
 redstonemechanism-info: "&7Blokowanie mechanizmów redstone na świecie &e{world}&7: &e{status}"
 
 # Entity Spawn Point messages
-entityspawnpoint-added: "&aDodano punkt spawnu &e{name} &adla entity &e{entity} &ana świecie &e{world}&a."
 entityspawnpoint-removed: "&aUsunięto punkt spawnu &e{name} &aze świata &e{world}&a."
 entityspawnpoint-not-found: "&cPunkt spawnu &e{name} &cnie istnieje na świecie &e{world}&c!"
 entityspawnpoint-list-header: "&7Punkty spawnu na świecie &e{world}&7:"
-entityspawnpoint-list-item: "&7- &e{name}&7: &a{entity} &7(&e{x}&7, &e{y}&7, &e{z}&7)"
 entityspawnpoint-list-empty: "&7Brak punktów spawnu na świecie &e{world}&7."
-entityspawnpoint-info: "&7Punkt spawnu &e{name} &7na świecie &e{world}&7:\n&7- Entity: &e{entity}\n&7- Pozycja: &e{x}&7, &e{y}&7, &e{z}"
+entityspawnpoint-added: "&aDodano punkt spawnu &e{name} &adla entity &e{entity} &ana świecie &e{world}&a. Interwał: &e{interval}"
+entityspawnpoint-info: "&7Punkt spawnu &e{name} &7na świecie &e{world}&7:\n&7- Entity: &e{entity}\n&7- Pozycja: &e{x}&7, &e{y}&7, &e{z}\n&7- Interwał: &e{interval}"
+entityspawnpoint-list-item: "&7- &e{name}&7: &a{entity} &7(&e{x}&7, &e{y}&7, &e{z}&7) - &e{interval}"
 
 # Disallowed Entity messages
 disallowedentity-added: "&aDodano &e{entity} &ado listy zakazanych mobów na świecie &e{world}&a."

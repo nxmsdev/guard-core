@@ -1,5 +1,4 @@
 # GuardCore English Messages
-# Author: nxmsdev | Website: www.nxms.dev
 
 prefix: "&8[&6GuardCore&8] "
 
@@ -13,6 +12,7 @@ invalid-time-format: "&cInvalid time format! Use format: &e1d2h30m15s250ms20t"
 invalid-time-range: "&cInvalid time range format! Use 24h format: &e11:30 or 18:20"
 invalid-entity: "&cEntity &e{entity} &cdoes not exist!"
 invalid-block: "&cBlock &e{block} &cdoes not exist!"
+invalid-interval: "&cInvalid interval format! Use format: &e30s &c(seconds), &e5m &c(minutes) or &e100t &c(ticks)"
 reload-success: "&aPlugin has been successfully reloaded!"
 
 # Block Despawn messages
@@ -51,13 +51,13 @@ redstonemechanism-set: "&aChanged redstone mechanism blocking in world &e{world}
 redstonemechanism-info: "&7Redstone mechanism blocking in world &e{world}&7: &e{status}"
 
 # Entity Spawn Point messages
-entityspawnpoint-added: "&aAdded spawn point &e{name} &afor entity &e{entity} &ain world &e{world}&a."
 entityspawnpoint-removed: "&aRemoved spawn point &e{name} &afrom world &e{world}&a."
 entityspawnpoint-not-found: "&cSpawn point &e{name} &cdoes not exist in world &e{world}&c!"
 entityspawnpoint-list-header: "&7Spawn points in world &e{world}&7:"
-entityspawnpoint-list-item: "&7- &e{name}&7: &a{entity} &7(&e{x}&7, &e{y}&7, &e{z}&7)"
 entityspawnpoint-list-empty: "&7No spawn points in world &e{world}&7."
-entityspawnpoint-info: "&7Spawn point &e{name} &7in world &e{world}&7:\n&7- Entity: &e{entity}\n&7- Position: &e{x}&7, &e{y}&7, &e{z}"
+entityspawnpoint-added: "&aAdded spawn point &e{name} &afor entity &e{entity} &ain world &e{world}&a. Interval: &e{interval}"
+entityspawnpoint-info: "&7Spawn point &e{name} &7in world &e{world}&7:\n&7- Entity: &e{entity}\n&7- Position: &e{x}&7, &e{y}&7, &e{z}\n&7- Interval: &e{interval}"
+entityspawnpoint-list-item: "&7- &e{name}&7: &a{entity} &7(&e{x}&7, &e{y}&7, &e{z}&7) - &e{interval}"
 
 # Disallowed Entity messages
 disallowedentity-added: "&aAdded &e{entity} &ato disallowed entities list in world &e{world}&a."

@@ -41,8 +41,6 @@ public class ConfigManager {
     }
 
     public void reloadConfig() {
-        plugin.getLogger().info("Reloading configuration file.");
-
         config = YamlConfiguration.loadConfiguration(configFile);
         loadPlacedBlocks();
 
@@ -51,9 +49,9 @@ public class ConfigManager {
 
     public void saveConfig() {
         try {
-            plugin.getLogger().info("Saving config.yml");
             savePlacedBlocks();
             config.save(configFile);
+            plugin.getLogger().info("Saved configuration file.");
         } catch (IOException e) {
             plugin.getLogger().severe("Could not save config.yml: " + e.getMessage());
         }
@@ -224,14 +222,22 @@ public class ConfigManager {
 
     // Entity Spawn Point methods
 
-    public void addEntitySpawnPoint(String worldName, String name, String entityType, Location location) {
+    // Entity Spawn Point methods
+
+    public void addEntitySpawnPoint(String worldName, String name, String entityType, Location location, long intervalTicks) {
         ensureWorldSection(worldName);
         String path = "worlds." + worldName + ".entitySpawnPoints." + name;
         config.set(path + ".entity", entityType);
         config.set(path + ".x", location.getX());
         config.set(path + ".y", location.getY());
         config.set(path + ".z", location.getZ());
+        config.set(path + ".interval", intervalTicks);
         saveConfig();
+    }
+
+    // Przeciążona metoda dla kompatybilności wstecznej (domyślny interwał 5 minut = 6000 ticków)
+    public void addEntitySpawnPoint(String worldName, String name, String entityType, Location location) {
+        addEntitySpawnPoint(worldName, name, entityType, location, 6000L);
     }
 
     public void removeEntitySpawnPoint(String worldName, String name) {
@@ -251,6 +257,7 @@ public class ConfigManager {
         data.put("x", config.getDouble(path + ".x"));
         data.put("y", config.getDouble(path + ".y"));
         data.put("z", config.getDouble(path + ".z"));
+        data.put("interval", config.getLong(path + ".interval", 6000L)); // Domyślnie 5 minut
         return data;
     }
 
