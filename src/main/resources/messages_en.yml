@@ -1,3 +1,4 @@
+# messages_en.yml
 # GuardCore English Messages
 
 prefix: "&8[&6GuardCore&8] "
@@ -51,13 +52,16 @@ redstonemechanism-set: "&aChanged redstone mechanism blocking in world &e{world}
 redstonemechanism-info: "&7Redstone mechanism blocking in world &e{world}&7: &e{status}"
 
 # Entity Spawn Point messages
+entityspawnpoint-added: "&aAdded spawn point &e{name} &afor entity &e{entity} &ain world &e{world}&a. Interval: &e{interval}"
 entityspawnpoint-removed: "&aRemoved spawn point &e{name} &afrom world &e{world}&a."
 entityspawnpoint-not-found: "&cSpawn point &e{name} &cdoes not exist in world &e{world}&c!"
 entityspawnpoint-list-header: "&7Spawn points in world &e{world}&7:"
-entityspawnpoint-list-empty: "&7No spawn points in world &e{world}&7."
-entityspawnpoint-added: "&aAdded spawn point &e{name} &afor entity &e{entity} &ain world &e{world}&a. Interval: &e{interval}"
-entityspawnpoint-info: "&7Spawn point &e{name} &7in world &e{world}&7:\n&7- Entity: &e{entity}\n&7- Position: &e{x}&7, &e{y}&7, &e{z}\n&7- Interval: &e{interval}"
 entityspawnpoint-list-item: "&7- &e{name}&7: &a{entity} &7(&e{x}&7, &e{y}&7, &e{z}&7) - &e{interval}"
+entityspawnpoint-list-empty: "&7No spawn points in world &e{world}&7."
+entityspawnpoint-info: "&7Spawn point &e{name} &7in world &e{world}&7:\n&7- Entity: &e{entity}\n&7- Position: &e{x}&7, &e{y}&7, &e{z}\n&7- Interval: &e{interval}"
+
+# Entity Spawn Point Time (interval) messages
+entityspawnpointtime-set: "&aChanged spawn point &e{name} &ain world &e{world}&a interval to &e{interval}&a."
 
 # Disallowed Entity messages
 disallowedentity-added: "&aAdded &e{entity} &ato disallowed entities list in world &e{world}&a."
@@ -103,7 +107,6 @@ bypass-info: |
   &e/gc bypass waterFlow [true/false]
   &e/gc bypass lavaFlow [true/false]
 
-
 # Help messages
 help-header: "&6&lGuardCore &7- Command list:"
 help-footer: "&7Use &e/guardcore help <command> &7for more information."
@@ -112,7 +115,7 @@ help-command-not-found: "&cCommand &e{command} &cdoes not exist!"
 help-blockdespawntime: |
   &6/guardcore set blockDespawnTime <world> <time>
   &7Sets the time after which player-placed blocks will disappear.
-  &7Time format: &e1d2h30m15s &7(days, hours, minutes, seconds)
+  &7Time format: &e1d2h30m15s250ms20t
   &6/guardcore info blockDespawnTime <world>
   &7Shows current block despawn time.
 
@@ -139,8 +142,10 @@ help-entitylimit: |
   &7Sets maximum amount of entity in world.
   &6/guardcore remove entityLimit <world> <entity>
   &7Removes entity limit.
+  &6/guardcore info entityLimit <world>
+  &7Shows all entity limits in world.
   &6/guardcore info entityLimit <world> <entity>
-  &7Shows entity limit.
+  &7Shows entity limit for a specific entity.
 
 help-entityspawntime: |
   &6/guardcore set entitySpawnTime <world> <entity> <from> <to>
@@ -158,14 +163,22 @@ help-blockredstonemechanism: |
   &7Shows redstone mechanism status.
 
 help-entityspawnpoint: |
-  &6/guardcore add entitySpawnPoint <world> <entity> <name>
+  &6/guardcore add entitySpawnPoint <world> <entity> <name> <interval>
   &7Creates spawn point at your location.
+  &7Interval format: &e1d2h30m15s250ms20t
+  &6/guardcore set entitySpawnPointTime <world> <name> <interval>
+  &7Changes interval for an existing spawn point.
   &6/guardcore remove entitySpawnPoint <world> <name>
   &7Removes spawn point.
   &6/guardcore info entitySpawnPoint <world>
   &7Shows list of all spawn points.
   &6/guardcore info entitySpawnPoint <world> <name>
   &7Shows spawn point details.
+
+help-entityspawnpointtime: |
+  &6/guardcore set entitySpawnPointTime <world> <spawn_point_name> <interval>
+  &7Changes spawn interval for an existing spawn point.
+  &7Interval format: &e1d2h30m15s250ms20t
 
 help-disallowedentity: |
   &6/guardcore add disallowedEntity <world> <entity>
@@ -202,7 +215,7 @@ help-list: |
   &e/guardcore help <command> &7- Help for specific command
   &7Available commands: &eblockDespawnTime, blockDespawn, waterFlow, lavaFlow,
   &eentityLimit, entitySpawnTime, blockRedstoneMechanism, entitySpawnPoint,
-  &edisallowedEntity, disallowedBlock, blockDestruction, reload
+  &eentitySpawnPointTime, disallowedEntity, disallowedBlock, blockDestruction, reload, bypass
 
 help-bypass: |
   &6/guardcore bypass disallowedBlocks [true/false]

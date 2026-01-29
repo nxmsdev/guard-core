@@ -128,6 +128,13 @@ public class EntitySpawnPointManager {
         }
     }
 
+    public void updateSpawnPointInterval(String worldName, String pointName, long intervalTicks) {
+        if (intervalTicks <= 0) return;
+
+        // startSpawnTask jest private, ale jesteśmy w tej samej klasie, więc można go użyć
+        startSpawnTask(worldName, pointName, intervalTicks);
+    }
+
     public void shutdown() {
         for (BukkitTask task : spawnTasks.values()) {
             task.cancel();

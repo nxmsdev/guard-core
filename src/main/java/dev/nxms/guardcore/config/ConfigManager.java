@@ -220,10 +220,6 @@ public class ConfigManager {
         return times;
     }
 
-    // Entity Spawn Point methods
-
-    // Entity Spawn Point methods
-
     public void addEntitySpawnPoint(String worldName, String name, String entityType, Location location, long intervalTicks) {
         ensureWorldSection(worldName);
         String path = "worlds." + worldName + ".entitySpawnPoints." + name;
@@ -235,7 +231,7 @@ public class ConfigManager {
         saveConfig();
     }
 
-    // Przeciążona metoda dla kompatybilności wstecznej (domyślny interwał 5 minut = 6000 ticków)
+    // Przeciążona metoda dla kompatybilności wstecznej
     public void addEntitySpawnPoint(String worldName, String name, String entityType, Location location) {
         addEntitySpawnPoint(worldName, name, entityType, location, 6000L);
     }
@@ -244,6 +240,21 @@ public class ConfigManager {
         ensureWorldSection(worldName);
         config.set("worlds." + worldName + ".entitySpawnPoints." + name, null);
         saveConfig();
+    }
+
+    public boolean setEntitySpawnPointInterval(String worldName, String name, long intervalTicks) {
+        ensureWorldSection(worldName);
+
+        String basePath = "worlds." + worldName + ".entitySpawnPoints." + name;
+
+        // Spawn point musi istnieć
+        if (!config.contains(basePath)) {
+            return false;
+        }
+
+        config.set(basePath + ".interval", intervalTicks);
+        saveConfig();
+        return true;
     }
 
     public Map<String, Object> getEntitySpawnPoint(String worldName, String name) {

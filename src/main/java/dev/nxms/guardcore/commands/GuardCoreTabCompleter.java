@@ -21,7 +21,7 @@ public class GuardCoreTabCompleter implements TabCompleter {
 
     private static final List<String> SET_COMMANDS = Arrays.asList(
             "blockDespawnTime", "blockDespawn", "waterFlow", "lavaFlow",
-            "blockRedstoneMechanism", "blockDestruction", "entitySpawnTime"
+            "blockRedstoneMechanism", "blockDestruction", "entitySpawnTime", "entitySpawnPointTime"
     );
 
     private static final List<String> ADD_COMMANDS = Arrays.asList(
@@ -214,6 +214,9 @@ public class GuardCoreTabCompleter implements TabCompleter {
 
         switch (action) {
             case "set":
+                if (setting.equals("entityspawnpointtime")) {
+                    return getSpawnPointNames(thirdArg); // thirdArg = worldName
+                }
                 return getSetFourthArguments(setting);
             case "add":
                 return getAddFourthArguments(setting);
@@ -297,6 +300,10 @@ public class GuardCoreTabCompleter implements TabCompleter {
 
         if (action.equals("set") && setting.equals("entityspawntime")) {
             return new ArrayList<>(TIME_OF_DAY_EXAMPLES);
+        }
+
+        if (action.equals("set") && setting.equals("entityspawnpointtime")) {
+            return new ArrayList<>(INTERVAL_EXAMPLES);
         }
 
         return new ArrayList<>();

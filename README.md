@@ -4,18 +4,18 @@ An advanced PaperMC world protection and modification plugin for Minecraft 1.21.
 
 ## Features
 
-- **Block Despawn** - Automatic removal of player-placed blocks after configurable time
-- **Block Destruction Protection** - Only player-placed blocks can be destroyed
-- **Disallowed Blocks** - Prevent placing specific blocks
-- **Disallowed Entities** - Prevent spawning specific entities
-- **Entity Limits** - Limit the number of specific entities per world
-- **Entity Spawn Times** - Restrict entity spawning to specific real-world hours
-- **Entity Spawn Points** - Define custom spawn points for entities
-- **Water/Lava Flow Control** - Enable or disable fluid spreading
-- **Redstone Mechanism Blocking** - Block redstone components usage
-- **Admin Bypass System** - Comprehensive bypass commands for administrators
-- **Language Support** - Polish and English, selectable in config.yml
-- **Per-World Configuration** - All settings are configurable per world
+- Block Despawn - Automatic removal of player-placed blocks after configurable time
+- Block Destruction Protection - Only player-placed blocks can be destroyed
+- Disallowed Blocks - Prevent placing specific blocks
+- Disallowed Entities - Prevent spawning specific entities
+- Entity Limits - Limit the number of specific entities per world
+- Entity Spawn Times - Restrict entity spawning to specific real-world hours
+- Entity Spawn Points - Define custom spawn points for entities with custom intervals
+- Water/Lava Flow Control - Enable or disable fluid spreading
+- Redstone Mechanism Blocking - Block redstone components usage
+- Admin Bypass System - Comprehensive bypass commands for administrators
+- Language Support - Polish and English, selectable in config.yml
+- Per-World Configuration - All settings are configurable per world
 
 ## Permissions
 
@@ -46,13 +46,14 @@ Main commands: /guardcore or /gc
 | /gc set lavaFlow <world> <true/false> | Enable/disable lava flow |
 | /gc set blockRedstoneMechanism <world> <true/false> | Enable/disable redstone blocking |
 | /gc set entitySpawnTime <world> <entity> <from> <to> | Set entity spawn time range (e.g., 08:00 20:00) |
+| /gc set entitySpawnPointTime <world> <spawn_point_name> <interval> | Change interval for an existing entity spawn point |
 
 ### Add Commands
 
 | Command | Description |
 |:--------|:------------|
 | /gc add entityLimit <world> <entity> <limit> | Set entity limit |
-| /gc add entitySpawnPoint <world> <entity> <name> | Add entity spawn point at your location |
+| /gc add entitySpawnPoint <world> <entity> <name> <interval> | Add entity spawn point at your location with spawn interval |
 | /gc add disallowedEntity <world> <entity> | Add entity to disallowed list |
 | /gc add disallowedBlock <world> <block> | Add block to disallowed list |
 
@@ -106,13 +107,14 @@ Main commands: /guardcore or /gc
 ### Language Selection
 
 In config.yml:
-```
+
 language: pl   # or en
-```
 
-### Time Format
+### Duration / Interval Format
 
-Block despawn time supports multiple formats:
+GuardCore uses a duration format for several settings (e.g. block despawn time, spawn point interval).
+
+Supported examples:
 
 - 1d - 1 day
 - 2h - 2 hours
@@ -140,18 +142,32 @@ waterFlow: true
 lavaFlow: true
 blockRedstoneMechanism: false
 blockDestruction: false
-entityLimits:
-ZOMBIE: 50
-SKELETON: 50
-entitySpawnTimes:
-PHANTOM:
-from: "22:00"
-to: "06:00"
-disallowedEntities:
-- WITHER
-disallowedBlocks:
-- BEDROCK
-- BARRIER
+
+    entityLimits:
+      ZOMBIE: 50
+      SKELETON: 50
+
+    entitySpawnTimes:
+      PHANTOM:
+        from: "22:00"
+        to: "06:00"
+
+    entitySpawnPoints:
+      zombie_spawn:
+        entity: ZOMBIE
+        x: 100.5
+        y: 64.0
+        z: 200.5
+        interval: 6000
+
+    disallowedEntities:
+      - WITHER
+    disallowedBlocks:
+      - BEDROCK
+      - BARRIER
+
+Note: interval is stored in ticks in config (20 ticks = 1 second).
+Commands accept human readable durations (e.g. 30s, 5m, 100t) which are converted to ticks.
 
 ## Bypass System
 
@@ -160,22 +176,22 @@ The bypass system allows administrators to temporarily override restrictions:
 - Bypass is disabled by default for all features
 - Bypass settings are per-player and stored in memory
 - Bypass settings are cleared on player quit and server restart
-- Blocks placed with bypass enabled maintain their bypass status (saved to config)
+- Blocks placed with bypass enabled keep their bypass despawn flag (saved in config as placed blocks data)
 
 ### Bypass Behavior
 
 | Bypass | Behavior when enabled |
 |:-------|:----------------------|
 | disallowedBlocks | Can place blocks from disallowed list |
-| blockDespawn | Placed blocks will never despawn |
+| blockDespawn | Blocks placed by player will never despawn |
 | blockDestruction | Can destroy any block (even non-player-placed) |
-| waterFlow | Water placed by player will spread |
-| lavaFlow | Lava placed by player will spread |
+| waterFlow | Water placed by player will spread even if world waterFlow is disabled |
+| lavaFlow | Lava placed by player will spread even if world lavaFlow is disabled |
 
 ## Other
 
 Author: [nxmsdev](https://github.com/nxmsdev)
 
-Website: [nxms.dev](https://www.nxms.dev)
+Website: https://www.nxms.dev
 
 License: [MIT](https://choosealicense.com/licenses/mit/)

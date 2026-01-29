@@ -1,3 +1,4 @@
+# messages_pl.yml
 # GuardCore Polish Messages
 
 prefix: "&8[&6GuardCore&8] "
@@ -51,13 +52,16 @@ redstonemechanism-set: "&aZmieniono blokowanie mechanizmów redstone na świecie
 redstonemechanism-info: "&7Blokowanie mechanizmów redstone na świecie &e{world}&7: &e{status}"
 
 # Entity Spawn Point messages
+entityspawnpoint-added: "&aDodano punkt spawnu &e{name} &adla entity &e{entity} &ana świecie &e{world}&a. Interwał: &e{interval}"
 entityspawnpoint-removed: "&aUsunięto punkt spawnu &e{name} &aze świata &e{world}&a."
 entityspawnpoint-not-found: "&cPunkt spawnu &e{name} &cnie istnieje na świecie &e{world}&c!"
 entityspawnpoint-list-header: "&7Punkty spawnu na świecie &e{world}&7:"
-entityspawnpoint-list-empty: "&7Brak punktów spawnu na świecie &e{world}&7."
-entityspawnpoint-added: "&aDodano punkt spawnu &e{name} &adla entity &e{entity} &ana świecie &e{world}&a. Interwał: &e{interval}"
-entityspawnpoint-info: "&7Punkt spawnu &e{name} &7na świecie &e{world}&7:\n&7- Entity: &e{entity}\n&7- Pozycja: &e{x}&7, &e{y}&7, &e{z}\n&7- Interwał: &e{interval}"
 entityspawnpoint-list-item: "&7- &e{name}&7: &a{entity} &7(&e{x}&7, &e{y}&7, &e{z}&7) - &e{interval}"
+entityspawnpoint-list-empty: "&7Brak punktów spawnu na świecie &e{world}&7."
+entityspawnpoint-info: "&7Punkt spawnu &e{name} &7na świecie &e{world}&7:\n&7- Entity: &e{entity}\n&7- Pozycja: &e{x}&7, &e{y}&7, &e{z}\n&7- Interwał: &e{interval}"
+
+# Entity Spawn Point Time (interval) messages
+entityspawnpointtime-set: "&aZmieniono interwał punktu spawnu &e{name} &ana świecie &e{world}&a na &e{interval}&a."
 
 # Disallowed Entity messages
 disallowedentity-added: "&aDodano &e{entity} &ado listy zakazanych mobów na świecie &e{world}&a."
@@ -111,7 +115,7 @@ help-command-not-found: "&cKomenda &e{command} &cnie istnieje!"
 help-blockdespawntime: |
   &6/guardcore set blockDespawnTime <świat> <czas>
   &7Ustawia czas po jakim bloki postawione przez graczy znikną.
-  &7Format czasu: &e1d2h30m15s &7(dni, godziny, minuty, sekundy)
+  &7Format czasu: &e1d2h30m15s250ms20t
   &6/guardcore info blockDespawnTime <świat>
   &7Pokazuje aktualny czas despawnu bloków.
 
@@ -138,6 +142,8 @@ help-entitylimit: |
   &7Ustawia maksymalną ilość danego entity na świecie.
   &6/guardcore remove entityLimit <świat> <entity>
   &7Usuwa limit dla danego entity.
+  &6/guardcore info entityLimit <świat>
+  &7Pokazuje wszystkie limity entity na świecie.
   &6/guardcore info entityLimit <świat> <entity>
   &7Pokazuje limit danego entity.
 
@@ -157,14 +163,22 @@ help-blockredstonemechanism: |
   &7Pokazuje status mechanizmów redstone.
 
 help-entityspawnpoint: |
-  &6/guardcore add entitySpawnPoint <świat> <entity> <nazwa>
+  &6/guardcore add entitySpawnPoint <świat> <entity> <nazwa> <interwał>
   &7Tworzy punkt spawnu w miejscu gdzie stoisz.
+  &7Format interwału: &e1d2h30m15s250ms20t
+  &6/guardcore set entitySpawnPointTime <świat> <nazwa> <interwał>
+  &7Zmienia interwał istniejącego punktu spawnu.
   &6/guardcore remove entitySpawnPoint <świat> <nazwa>
   &7Usuwa punkt spawnu.
   &6/guardcore info entitySpawnPoint <świat>
   &7Pokazuje listę wszystkich punktów spawnu.
   &6/guardcore info entitySpawnPoint <świat> <nazwa>
   &7Pokazuje szczegóły punktu spawnu.
+
+help-entityspawnpointtime: |
+  &6/guardcore set entitySpawnPointTime <świat> <nazwa_punktu> <interwał>
+  &7Zmienia interwał spawnu dla istniejącego punktu.
+  &7Format interwału: &e1d2h30m15s250ms20t
 
 help-disallowedentity: |
   &6/guardcore add disallowedEntity <świat> <entity>
@@ -201,7 +215,7 @@ help-list: |
   &e/guardcore help <komenda> &7- Pomoc dla konkretnej komendy
   &7Dostępne komendy: &eblockDespawnTime, blockDespawn, waterFlow, lavaFlow,
   &eentityLimit, entitySpawnTime, blockRedstoneMechanism, entitySpawnPoint,
-  &edisallowedEntity, disallowedBlock, blockDestruction, reload
+  &eentitySpawnPointTime, disallowedEntity, disallowedBlock, blockDestruction, reload, bypass
 
 help-bypass: |
   &6/guardcore bypass disallowedBlocks [true/false]

@@ -327,6 +327,9 @@ public class GuardCoreCommand implements CommandExecutor {
             case "entityspawntime":
                 handleSetEntitySpawnTime(sender, args);
                 break;
+            case "entityspawnpointtime":
+                handleSetEntitySpawnPointTime(sender, args);
+                break;
             default:
                 messages.send(sender, "unknown-command");
                 break;
@@ -739,6 +742,65 @@ public class GuardCoreCommand implements CommandExecutor {
             return seconds + "s";
         }
         return ticks + "t";
+    }
+
+    private void handleSetEntitySpawnPointTime(CommandSender sender, String[] args) {
+        if (args.length < 5) {
+            messages.send(sender, "invalid-arguments",
+                    MessageManager.placeholders("command", "entitySpawnPointTime"));
+            return;
+        }
+
+        String worldName = args[2];
+        String pointName = args[3];
+        String intervalStr = args[4].toLowerCase();
+
+        if (!isValidWorld(worldName)) {
+            messages.send(sender, "world-not-found", MessageManager.placeholders("world", worldName));
+            return;
+        }
+
+        // spawn point musi istnieć
+        if (config.getEntitySpawnPoint(worldName, pointName) == null) {
+            messages.send(sender, "entityspawnpoint-not-found", MessageManager.placeholders(
+                    "name", pointName,
+                    "world", worldName
+            ));
+            return;
+        }
+
+        // Parsuj interwał (tym samym formatem co blockDespawnTime)
+        if (!TimeParser.isValidDuration(intervalStr)) {
+            messages.send(sender, "invalid-interval");
+            return;
+        }
+
+        long intervalMs = TimeParser.parseDuration(intervalStr);
+        long intervalTicks = intervalMs / 50; // 1 tick = 50ms
+
+        if (intervalTicks <= 0) {
+            messages.send(sender, "invalid-interval");
+            return;
+        }
+
+        boolean updated = config.setEntitySpawnPointInterval(worldName, pointName, intervalTicks);
+        if (!updated) {
+            // na wypadek gdyby config się zmienił między checkiem a setem
+            messages.send(sender, "entityspawnpoint-not-found", MessageManager.placeholders(
+                    "name", pointName,
+                    "world", worldName
+            ));
+            return;
+        }
+
+        // przestaw task dla tego konkretnego punktu
+        plugin.getEntitySpawnPointManager().updateSpawnPointInterval(worldName, pointName, intervalTicks);
+
+        messages.send(sender, "entityspawnpointtime-set", MessageManager.placeholders(
+                "name", pointName,
+                "world", worldName,
+                "interval", TimeParser.formatDuration(intervalMs)
+        ));
     }
 
     private void handleAddDisallowedEntity(CommandSender sender, String[] args) {
