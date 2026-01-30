@@ -45,7 +45,9 @@ public class MessageManager {
 
         if (!messagesFile.exists()) {
             plugin.saveResource("messages_en.yml", false);
-            plugin.getLogger().warning("Couldn't find messages file! Loading default messages file.");
+            plugin.getLogger().warning("Couldn't find " + fileName + "! Loading default messages file (messages_en.yml).");
+            fileName = "messages_en.yml";
+            messagesFile = new File(plugin.getDataFolder(), fileName);
         }
 
         messagesConfig = YamlConfiguration.loadConfiguration(messagesFile);
