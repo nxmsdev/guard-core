@@ -729,6 +729,8 @@ public class GuardCoreCommand implements CommandExecutor {
                         "interval", intervalDisplay
                 ));
             }
+
+            messages.send(sender, "entityspawnpoint-list-footer", MessageManager.placeholders("world", worldName));
         }
     }
 
@@ -1197,6 +1199,8 @@ public class GuardCoreCommand implements CommandExecutor {
                         "limit", String.valueOf(entry.getValue())
                 ));
             }
+
+            messages.send(sender, "entitylimit-list-footer", MessageManager.placeholders("world", worldName));
         }
     }
 
@@ -1277,6 +1281,8 @@ public class GuardCoreCommand implements CommandExecutor {
         for (String entity : entities) {
             messages.sendRaw(sender, "disallowedentity-list-item", MessageManager.placeholders("entity", entity));
         }
+
+        messages.send(sender, "disallowedentity-list-footer", MessageManager.placeholders("world", worldName));
     }
 
     private void handleInfoDisallowedBlock(CommandSender sender, String[] args) {
@@ -1304,6 +1310,8 @@ public class GuardCoreCommand implements CommandExecutor {
         for (String block : blocks) {
             messages.sendRaw(sender, "disallowedblock-list-item", MessageManager.placeholders("block", block));
         }
+
+        messages.send(sender, "disallowedblock-list-footer", MessageManager.placeholders("world", worldName));
     }
 
     private void handleInfoBlockDestruction(CommandSender sender, String[] args) {

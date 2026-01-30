@@ -8,8 +8,14 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Zarządza wiadomościami pluginu.
@@ -18,8 +24,10 @@ import java.util.Map;
 public class MessageManager {
 
     private final GuardCore plugin;
-    private FileConfiguration messages;
-    private String prefix;
+    private FileConfiguration messagesConfig;
+
+    // Pattern do wykrywania {placeholder}
+    private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{([^}]+)}");
 
     public MessageManager(GuardCore plugin) {
         this.plugin = plugin;
@@ -29,33 +37,27 @@ public class MessageManager {
     /**
      * Ładuje plik wiadomości na podstawie ustawionego języka.
      */
-    public void loadMessages() {
-        String language = plugin.getConfigManager().getLanguage();
-        String fileName = "messages_" + language + ".yml";
+    private void loadMessages() {
+        String currentLanguage = plugin.getConfigManager().getLanguage();
+        String fileName = "messages_" + currentLanguage + ".yml";
 
         File messagesFile = new File(plugin.getDataFolder(), fileName);
 
-        // Zapisz domyślne pliki wiadomości jeśli nie istnieją
-        if (!new File(plugin.getDataFolder(), "messages_pl.yml").exists()) {
-            plugin.getLogger().warning("Couldn't find messages_pl.yml file! Creating new messages file.");
-
-            plugin.saveResource("messages_pl.yml", false);
-        }
-        if (!new File(plugin.getDataFolder(), "messages_en.yml").exists()) {
-            plugin.getLogger().warning("Couldn't find messages_en.yml file! Creating new messages file.");
-
-            plugin.saveResource("messages_en.yml", false);
-        }
-
         if (!messagesFile.exists()) {
-            plugin.getLogger().warning("Messages file " + fileName + " not found! Using messages_pl.yml.");
-            messagesFile = new File(plugin.getDataFolder(), "messages_pl.yml");
+            plugin.saveResource("messages_en.yml", false);
+            plugin.getLogger().warning("Couldn't find messages file! Loading default messages file.");
         }
 
-        messages = YamlConfiguration.loadConfiguration(messagesFile);
-        prefix = messages.getString("prefix", "&8[&6GuardCore&8] ");
+        messagesConfig = YamlConfiguration.loadConfiguration(messagesFile);
 
-        plugin.getLogger().info("Messages file has been loaded.");
+        InputStream defaultStream = plugin.getResource(fileName);
+        if (defaultStream != null) {
+            YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(
+                    new InputStreamReader(defaultStream, StandardCharsets.UTF_8));
+            messagesConfig.setDefaults(defaultConfig);
+        }
+
+        plugin.getLogger().info("Messages has been loaded.");
     }
 
     /**
@@ -63,39 +65,88 @@ public class MessageManager {
      */
     public void reload() {
         plugin.getLogger().info("Reloading messages.");
-
         loadMessages();
-
-        plugin.getLogger().info("Messaegs has been reloaded.");
+        plugin.getLogger().info("Messages has been reloaded.");
     }
 
     /**
      * Pobiera surową wiadomość z pliku konfiguracji.
      */
     public String getRaw(String key) {
-        return messages.getString(key, "&cMissing message: " + key);
+        return messagesConfig.getString(key, "");
     }
 
     /**
-     * Pobiera wiadomość z prefixem i zamienionymi placeholderami.
+     * Zamienia wszystkie {klucz} na wartości z pliku messages.
+     * Pomija placeholdery przekazane w mapie (te będą zamienione później).
      */
-    public String getMessage(String key, Map<String, String> placeholders) {
-        String message = prefix + getRaw(key);
+    private String replaceConfigPlaceholders(String message, Map<String, String> customPlaceholders) {
+        Matcher matcher = PLACEHOLDER_PATTERN.matcher(message);
+        StringBuffer result = new StringBuffer();
 
-        if (placeholders != null) {
-            for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-                message = message.replace("{" + entry.getKey() + "}", entry.getValue());
+        while (matcher.find()) {
+            String placeholder = matcher.group(1);
+
+            // Sprawdź czy to jest placeholder z kodu (customPlaceholders)
+            if (customPlaceholders != null && customPlaceholders.containsKey(placeholder)) {
+                continue; // Pomiń - zostanie zamieniony później
             }
+
+            // Sprawdź czy istnieje w pliku messages
+            String value = getRaw(placeholder);
+            if (!value.isEmpty()) {
+                matcher.appendReplacement(result, Matcher.quoteReplacement(value));
+            }
+        }
+
+        matcher.appendTail(result);
+        return result.toString();
+    }
+
+    /**
+     * Zamienia placeholdery przekazane z kodu.
+     */
+    private String replaceCustomPlaceholders(String message, Map<String, String> placeholders) {
+        if (placeholders == null) return message;
+
+        for (Map.Entry<String, String> entry : placeholders.entrySet()) {
+            message = message.replace("{" + entry.getKey() + "}", entry.getValue());
         }
 
         return message;
     }
 
     /**
-     * Pobiera wiadomość z prefixem bez placeholderów.
+     * Pobiera wiadomość z zamienionymi placeholderami z pliku messages i z kodu.
+     */
+    public String getMessage(String key, Map<String, String> placeholders) {
+        String message = getRaw(key);
+
+        if (message.isEmpty()) {
+            return "&cMissing message: " + key;
+        }
+
+        // Najpierw zamień placeholdery z pliku messages (np. {prefix})
+        message = replaceConfigPlaceholders(message, placeholders);
+
+        // Potem zamień placeholdery z kodu (np. {player}, {reason})
+        message = replaceCustomPlaceholders(message, placeholders);
+
+        return message;
+    }
+
+    /**
+     * Pobiera wiadomość bez placeholderów z kodu.
      */
     public String getMessage(String key) {
         return getMessage(key, null);
+    }
+
+    /**
+     * Konwertuje wiadomość na Component.
+     */
+    public Component toComponent(String message) {
+        return LegacyComponentSerializer.legacyAmpersand().deserialize(message);
     }
 
     /**
@@ -103,8 +154,7 @@ public class MessageManager {
      */
     public void send(CommandSender sender, String key, Map<String, String> placeholders) {
         String message = getMessage(key, placeholders);
-        Component component = LegacyComponentSerializer.legacyAmpersand().deserialize(message);
-        sender.sendMessage(component);
+        sender.sendMessage(toComponent(message));
     }
 
     /**
@@ -115,19 +165,17 @@ public class MessageManager {
     }
 
     /**
-     * Wysyła surową wiadomość (bez prefixu) z placeholderami.
+     * Wysyła surową wiadomość (bez zamiany placeholderów z pliku) z placeholderami z kodu.
      */
     public void sendRaw(CommandSender sender, String key, Map<String, String> placeholders) {
         String message = getRaw(key);
 
-        if (placeholders != null) {
-            for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-                message = message.replace("{" + entry.getKey() + "}", entry.getValue());
-            }
+        if (message.isEmpty()) {
+            message = "&cMissing message: " + key;
         }
 
-        Component component = LegacyComponentSerializer.legacyAmpersand().deserialize(message);
-        sender.sendMessage(component);
+        message = replaceCustomPlaceholders(message, placeholders);
+        sender.sendMessage(toComponent(message));
     }
 
     /**

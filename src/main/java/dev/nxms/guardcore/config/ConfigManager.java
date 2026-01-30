@@ -58,7 +58,7 @@ public class ConfigManager {
     }
 
     public String getLanguage() {
-        return config.getString("language", "pl");
+        return config.getString("language", "en");
     }
 
     private void ensureWorldSection(String worldName) {

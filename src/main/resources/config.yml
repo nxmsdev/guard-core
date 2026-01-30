@@ -2,7 +2,7 @@
 # Author: nxmsdev | Website: www.nxms.dev
 
 # Language setting (pl/en)
-language: pl
+language: en
 
 # World settings - automatically generated when using commands
 worlds:

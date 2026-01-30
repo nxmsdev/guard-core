@@ -99,7 +99,7 @@ public class GuardCore extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new RedstoneListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(this), this);
 
-        getLogger().info("All listeners has been initialized successfully.");
+        getLogger().info("Listeners has been initialized successfully.");
     }
 
     /**
