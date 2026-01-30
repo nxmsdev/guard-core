@@ -50,7 +50,6 @@ public class GuardCore extends JavaPlugin {
         // Zatrzymanie zadań despawn-u bloków
         if (blockDespawnManager != null) {
             blockDespawnManager.shutdown();
-            getLogger().info("Block Despawn Manager has shutdown successfully.");
         }
 
         // Wyczyść bypassy
@@ -87,7 +86,7 @@ public class GuardCore extends JavaPlugin {
         getCommand("guardcore").setExecutor(commandExecutor);
         getCommand("guardcore").setTabCompleter(tabCompleter);
 
-        getLogger().info("All commands has been registered successfully");
+        getLogger().info("Commands has been registered successfully");
     }
 
     /**

@@ -126,7 +126,7 @@ public class BlockDespawnManager {
             despawnTask.cancel();
             despawnTask = null;
 
-            plugin.getLogger().info("Block Despawn Manager has shut down.");
+            plugin.getLogger().info("Block Despawn Manager has shutdown.");
         }
     }
 
