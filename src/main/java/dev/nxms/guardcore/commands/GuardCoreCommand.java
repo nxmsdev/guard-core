@@ -720,7 +720,7 @@ public class GuardCoreCommand implements CommandExecutor {
                 long intervalMs = intervalTicks * 50;
                 String intervalDisplay = TimeParser.formatDuration(intervalMs);
 
-                messages.sendRaw(sender, "entityspawnpoint-list-item", MessageManager.placeholders(
+                messages.send(sender, "entityspawnpoint-list-item", MessageManager.placeholders(
                         "name", entry.getKey(),
                         "entity", (String) point.get("entity"),
                         "x", String.format("%.0f", (Double) point.get("x")),
@@ -1194,7 +1194,7 @@ public class GuardCoreCommand implements CommandExecutor {
             messages.send(sender, "entitylimit-list-header", MessageManager.placeholders("world", worldName));
 
             for (Map.Entry<String, Integer> entry : limits.entrySet()) {
-                messages.sendRaw(sender, "entitylimit-list-item", MessageManager.placeholders(
+                messages.send(sender, "entitylimit-list-item", MessageManager.placeholders(
                         "entity", entry.getKey(),
                         "limit", String.valueOf(entry.getValue())
                 ));
@@ -1279,7 +1279,7 @@ public class GuardCoreCommand implements CommandExecutor {
         messages.send(sender, "disallowedentity-list-header", MessageManager.placeholders("world", worldName));
 
         for (String entity : entities) {
-            messages.sendRaw(sender, "disallowedentity-list-item", MessageManager.placeholders("entity", entity));
+            messages.send(sender, "disallowedentity-list-item", MessageManager.placeholders("entity", entity));
         }
 
         messages.send(sender, "disallowedentity-list-footer", MessageManager.placeholders("world", worldName));
@@ -1308,7 +1308,7 @@ public class GuardCoreCommand implements CommandExecutor {
         messages.send(sender, "disallowedblock-list-header", MessageManager.placeholders("world", worldName));
 
         for (String block : blocks) {
-            messages.sendRaw(sender, "disallowedblock-list-item", MessageManager.placeholders("block", block));
+            messages.send(sender, "disallowedblock-list-item", MessageManager.placeholders("block", block));
         }
 
         messages.send(sender, "disallowedblock-list-footer", MessageManager.placeholders("world", worldName));
@@ -1354,9 +1354,9 @@ public class GuardCoreCommand implements CommandExecutor {
         }
 
         if (command == null) {
-            messages.sendRaw(sender, "help-header");
-            messages.sendRaw(sender, "help-list");
-            messages.sendRaw(sender, "help-footer");
+            messages.send(sender, "help-header");
+            messages.send(sender, "help-list");
+            messages.send(sender, "help-footer");
             return;
         }
 
@@ -1368,7 +1368,7 @@ public class GuardCoreCommand implements CommandExecutor {
             return;
         }
 
-        messages.sendRaw(sender, helpKey);
+        messages.send(sender, helpKey);
     }
 
     // ===== UTILITY METHODS =====

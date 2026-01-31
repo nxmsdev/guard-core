@@ -8,25 +8,29 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Zarządza wiadomościami pluginu.
- * Obsługuje wielojęzyczność i formatowanie wiadomości.
+ * Manages plugin messages and translations.
+ * Supports multiple languages, modular prefixes, and color formatting.
  */
 public class MessageManager {
 
     private final GuardCore plugin;
-    private FileConfiguration messagesConfig;
+    private final LegacyComponentSerializer legacy = LegacyComponentSerializer.legacyAmpersand();
 
-    // Pattern do wykrywania {placeholder}
+    private FileConfiguration messagesConfig;
+    private String language;
+
+    // Pattern to match {placeholder} format
     private static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\{([^}]+)}");
 
     public MessageManager(GuardCore plugin) {
@@ -35,70 +39,115 @@ public class MessageManager {
     }
 
     /**
-     * Ładuje plik wiadomości na podstawie ustawionego języka.
+     * Loads messages from the appropriate language file.
      */
     private void loadMessages() {
-        String currentLanguage = plugin.getConfigManager().getLanguage();
-        String fileName = "messages_" + currentLanguage + ".yml";
+        // Save default message file if exists in JAR
+        saveDefaultMessages("messages_en.yml");
 
-        File messagesFile = new File(plugin.getDataFolder(), fileName);
+        // Load configured language
+        language = plugin.getConfigManager().getLanguage().toLowerCase();
+        String fileName = "messages_" + language + ".yml";
+        File file = new File(plugin.getDataFolder(), fileName);
 
-        if (!messagesFile.exists()) {
-            plugin.saveResource("messages_en.yml", false);
-            plugin.getLogger().warning("Couldn't find " + fileName + "! Loading default messages file (messages_en.yml).");
+        // Fallback to English if selected language doesn't exist
+        if (!file.exists()) {
+            plugin.getLogger().warning("Messages file " + fileName + " not found! Using messages_en.yml.");
             fileName = "messages_en.yml";
-            messagesFile = new File(plugin.getDataFolder(), fileName);
+            file = new File(plugin.getDataFolder(), fileName);
+
+            // Create English file if it doesn't exist
+            if (!file.exists() && plugin.getResource("messages_en.yml") != null) {
+                plugin.saveResource("messages_en.yml", false);
+            }
         }
 
-        messagesConfig = YamlConfiguration.loadConfiguration(messagesFile);
+        messagesConfig = YamlConfiguration.loadConfiguration(file);
 
+        // Load defaults from JAR
         InputStream defaultStream = plugin.getResource(fileName);
         if (defaultStream != null) {
             YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(
-                    new InputStreamReader(defaultStream, StandardCharsets.UTF_8));
+                    new InputStreamReader(defaultStream, StandardCharsets.UTF_8)
+            );
             messagesConfig.setDefaults(defaultConfig);
         }
 
-        plugin.getLogger().info("Messages has been loaded.");
+        plugin.getLogger().info("Messages file has been loaded (" + fileName + ").");
     }
 
     /**
-     * Przeładowuje wiadomości.
+     * Saves a default message file if it doesn't exist.
+     * Only saves if the resource exists in the JAR.
+     */
+    private void saveDefaultMessages(String fileName) {
+        File file = new File(plugin.getDataFolder(), fileName);
+        if (!file.exists() && plugin.getResource(fileName) != null) {
+            plugin.saveResource(fileName, false);
+            plugin.getLogger().info("Created default " + fileName + " file.");
+        }
+    }
+
+    /**
+     * Reloads messages from the language file.
      */
     public void reload() {
-        plugin.getLogger().info("Reloading messages.");
         loadMessages();
-        plugin.getLogger().info("Messages has been reloaded.");
     }
 
     /**
-     * Pobiera surową wiadomość z pliku konfiguracji.
+     * Gets a raw message from config without any processing.
      */
     public String getRaw(String key) {
         return messagesConfig.getString(key, "");
     }
 
     /**
-     * Zamienia wszystkie {klucz} na wartości z pliku messages.
-     * Pomija placeholdery przekazane w mapie (te będą zamienione później).
+     * Checks if a key exists in the messages config.
      */
-    private String replaceConfigPlaceholders(String message, Map<String, String> customPlaceholders) {
+    public boolean hasKey(String key) {
+        return messagesConfig.contains(key) && !getRaw(key).isEmpty();
+    }
+
+    /**
+     * Replaces {key} placeholders with values from messages file.
+     * Only replaces placeholders that exist as keys in the config.
+     * Prevents infinite recursion by tracking already processed keys.
+     */
+    private String replaceConfigPlaceholders(String message, Set<String> processedKeys) {
+        if (message == null || message.isEmpty()) {
+            return message;
+        }
+
         Matcher matcher = PLACEHOLDER_PATTERN.matcher(message);
         StringBuffer result = new StringBuffer();
 
         while (matcher.find()) {
-            String placeholder = matcher.group(1);
+            String fullMatch = matcher.group(0);  // {placeholder}
+            String placeholder = matcher.group(1); // placeholder
 
-            // Sprawdź czy to jest placeholder z kodu (customPlaceholders)
-            if (customPlaceholders != null && customPlaceholders.containsKey(placeholder)) {
-                continue; // Pomiń - zostanie zamieniony później
+            // Skip if already processed (prevents infinite recursion)
+            if (processedKeys.contains(placeholder)) {
+                matcher.appendReplacement(result, Matcher.quoteReplacement(fullMatch));
+                continue;
             }
 
-            // Sprawdź czy istnieje w pliku messages
+            // Check if this placeholder exists in config
+            if (!hasKey(placeholder)) {
+                // Keep original placeholder for custom placeholders like {player}, {reason}
+                matcher.appendReplacement(result, Matcher.quoteReplacement(fullMatch));
+                continue;
+            }
+
+            // Mark as processed
+            Set<String> newProcessedKeys = new HashSet<>(processedKeys);
+            newProcessedKeys.add(placeholder);
+
+            // Get and recursively process the value
             String value = getRaw(placeholder);
-            if (!value.isEmpty()) {
-                matcher.appendReplacement(result, Matcher.quoteReplacement(value));
-            }
+            value = replaceConfigPlaceholders(value, newProcessedKeys);
+
+            matcher.appendReplacement(result, Matcher.quoteReplacement(value));
         }
 
         matcher.appendTail(result);
@@ -106,96 +155,96 @@ public class MessageManager {
     }
 
     /**
-     * Zamienia placeholdery przekazane z kodu.
+     * Gets a formatted message with config placeholders replaced.
      */
-    private String replaceCustomPlaceholders(String message, Map<String, String> placeholders) {
-        if (placeholders == null) return message;
-
-        for (Map.Entry<String, String> entry : placeholders.entrySet()) {
-            message = message.replace("{" + entry.getKey() + "}", entry.getValue());
-        }
-
-        return message;
-    }
-
-    /**
-     * Pobiera wiadomość z zamienionymi placeholderami z pliku messages i z kodu.
-     */
-    public String getMessage(String key, Map<String, String> placeholders) {
+    public String get(String key) {
         String message = getRaw(key);
-
         if (message.isEmpty()) {
             return "&cMissing message: " + key;
         }
 
-        // Najpierw zamień placeholdery z pliku messages (np. {prefix})
-        message = replaceConfigPlaceholders(message, placeholders);
-
-        // Potem zamień placeholdery z kodu (np. {player}, {reason})
-        message = replaceCustomPlaceholders(message, placeholders);
+        // Replace config placeholders (like {prefix-error}, {prefix-success}, etc.)
+        Set<String> processedKeys = new HashSet<>();
+        processedKeys.add(key); // Prevent self-reference
+        message = replaceConfigPlaceholders(message, processedKeys);
 
         return message;
     }
 
     /**
-     * Pobiera wiadomość bez placeholderów z kodu.
+     * Gets a formatted message with custom placeholders replaced.
      */
-    public String getMessage(String key) {
-        return getMessage(key, null);
+    public String get(String key, Map<String, String> placeholders) {
+        String message = get(key);
+        if (placeholders != null) {
+            for (Map.Entry<String, String> entry : placeholders.entrySet()) {
+                message = message.replace("{" + entry.getKey() + "}", entry.getValue());
+            }
+        }
+        return message;
     }
 
     /**
-     * Konwertuje wiadomość na Component.
+     * Converts legacy text with color codes to Adventure Component.
      */
     public Component toComponent(String message) {
-        return LegacyComponentSerializer.legacyAmpersand().deserialize(message);
+        return legacy.deserialize(message);
     }
 
-    /**
-     * Wysyła wiadomość do gracza/konsoli.
-     */
-    public void send(CommandSender sender, String key, Map<String, String> placeholders) {
-        String message = getMessage(key, placeholders);
-        sender.sendMessage(toComponent(message));
-    }
+    // ==================== SEND METHODS ====================
 
     /**
-     * Wysyła wiadomość bez placeholderów.
+     * Sends a message to the sender.
      */
     public void send(CommandSender sender, String key) {
-        send(sender, key, null);
+        sender.sendMessage(toComponent(get(key)));
     }
 
     /**
-     * Wysyła surową wiadomość (bez zamiany placeholderów z pliku) z placeholderami z kodu.
+     * Sends a message with placeholder replacements.
      */
-    public void sendRaw(CommandSender sender, String key, Map<String, String> placeholders) {
-        String message = getRaw(key);
+    public void send(CommandSender sender, String key, Map<String, String> placeholders) {
+        sender.sendMessage(toComponent(get(key, placeholders)));
+    }
 
-        if (message.isEmpty()) {
-            message = "&cMissing message: " + key;
+    /**
+     * Sends raw text (not from config) to sender.
+     */
+    public void sendText(CommandSender sender, String text) {
+        sender.sendMessage(toComponent(text));
+    }
+
+    /**
+     * Sends raw text with placeholder replacements.
+     */
+    public void sendText(CommandSender sender, String text, Map<String, String> placeholders) {
+        if (placeholders != null) {
+            for (Map.Entry<String, String> entry : placeholders.entrySet()) {
+                text = text.replace("{" + entry.getKey() + "}", entry.getValue());
+            }
         }
-
-        message = replaceCustomPlaceholders(message, placeholders);
-        sender.sendMessage(toComponent(message));
+        sender.sendMessage(toComponent(text));
     }
 
+    // ==================== UTILITY METHODS ====================
+
     /**
-     * Wysyła surową wiadomość bez placeholderów.
+     * Gets the current language code.
      */
-    public void sendRaw(CommandSender sender, String key) {
-        sendRaw(sender, key, null);
+    public String getLanguage() {
+        return language;
     }
 
     /**
-     * Konwertuje boolean na czytelny tekst.
+     * Converts boolean to readable text from config.
      */
     public String getBooleanDisplay(boolean value) {
-        return value ? getRaw("boolean-true") : getRaw("boolean-false");
+        return value ? get("boolean-true") : get("boolean-false");
     }
 
     /**
-     * Tworzy mapę placeholderów z podanych par klucz-wartość.
+     * Helper method to create placeholder maps easily.
+     * Usage: placeholders("player", "Steve", "reason", "Hacking")
      */
     public static Map<String, String> placeholders(String... keyValues) {
         Map<String, String> map = new HashMap<>();
