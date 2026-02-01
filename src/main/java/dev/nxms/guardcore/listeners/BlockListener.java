@@ -85,8 +85,8 @@ public class BlockListener implements Listener {
         String worldName = block.getWorld().getName();
 
         // Sprawdź czy niszczenie bloków jest dozwolone
-        // true = tylko bloki postawione przez graczy mogą być niszczone
-        if (config.isBlockDestructionBlocked(worldName)) {
+        // false = tylko bloki postawione przez graczy mogą być niszczone
+        if (!config.isBlockDestructionAllowed(worldName)) {
             // Sprawdź czy gracz ma bypass na niszczenie bloków
             boolean hasDestructionBypass = player.hasPermission("guardcore.bypass")
                     && plugin.getBypassManager().hasBlockDestructionBypass(player.getUniqueId());

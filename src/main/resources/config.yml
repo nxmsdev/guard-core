@@ -20,7 +20,7 @@ worlds:
     blockRedstoneMechanism: false
 
     # Block destruction settings (true = only player-placed blocks can be destroyed)
-    blockDestruction: false
+    blockDestructionAllowed: false
 
     # Entity limits (entity: limit)
     entityLimits: {}

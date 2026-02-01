@@ -69,7 +69,7 @@ public class ConfigManager {
             config.set("worlds." + worldName + ".waterFlow", true);
             config.set("worlds." + worldName + ".lavaFlow", true);
             config.set("worlds." + worldName + ".blockRedstoneMechanism", false);
-            config.set("worlds." + worldName + ".blockDestruction", true);
+            config.set("worlds." + worldName + ".blockDestructionAllowed", true);
             saveConfig();
         }
     }
@@ -137,14 +137,14 @@ public class ConfigManager {
 
     // Block Destruction methods
 
-    public boolean isBlockDestructionBlocked(String worldName) {
+    public boolean isBlockDestructionAllowed(String worldName) {
         ensureWorldSection(worldName);
-        return config.getBoolean("worlds." + worldName + ".blockDestruction", false);
+        return config.getBoolean("worlds." + worldName + ".blockDestructionAllowed", true);
     }
 
-    public void setBlockDestructionBlocked(String worldName, boolean blocked) {
+    public void setBlockDestructionAllowed(String worldName, boolean allowed) {
         ensureWorldSection(worldName);
-        config.set("worlds." + worldName + ".blockDestruction", blocked);
+        config.set("worlds." + worldName + ".blockDestructionAllowed", allowed);
         saveConfig();
     }
 

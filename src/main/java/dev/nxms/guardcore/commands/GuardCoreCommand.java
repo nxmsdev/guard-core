@@ -104,7 +104,7 @@ public class GuardCoreCommand implements CommandExecutor {
             case "blockdespawn":
                 handleBypassBlockDespawn(player, args);
                 break;
-            case "blockdestruction":
+            case "allowblockdestruction":
                 handleBypassBlockDestruction(player, args);
                 break;
             case "waterflow":
@@ -321,7 +321,7 @@ public class GuardCoreCommand implements CommandExecutor {
             case "blockredstonemechanism":
                 handleSetRedstoneMechanism(sender, args);
                 break;
-            case "blockdestruction":
+            case "allowblockdestruction":
                 handleSetBlockDestruction(sender, args);
                 break;
             case "entityspawntime":
@@ -476,7 +476,7 @@ public class GuardCoreCommand implements CommandExecutor {
 
     private void handleSetBlockDestruction(CommandSender sender, String[] args) {
         if (args.length < 4) {
-            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "blockDestruction"));
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "blockDestructionAllowed"));
             return;
         }
 
@@ -1077,7 +1077,7 @@ public class GuardCoreCommand implements CommandExecutor {
             case "disallowedblock":
                 handleInfoDisallowedBlock(sender, args);
                 break;
-            case "blockdestruction":
+            case "allowblockdestruction":
                 handleInfoBlockDestruction(sender, args);
                 break;
             default:
@@ -1316,7 +1316,7 @@ public class GuardCoreCommand implements CommandExecutor {
 
     private void handleInfoBlockDestruction(CommandSender sender, String[] args) {
         if (args.length < 3) {
-            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "blockDestruction"));
+            messages.send(sender, "invalid-arguments", MessageManager.placeholders("command", "blockDestructionAllowed"));
             return;
         }
 

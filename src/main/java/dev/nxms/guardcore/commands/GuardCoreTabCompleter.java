@@ -21,7 +21,7 @@ public class GuardCoreTabCompleter implements TabCompleter {
 
     private static final List<String> SET_COMMANDS = Arrays.asList(
             "blockDespawnTime", "blockDespawn", "waterFlow", "lavaFlow",
-            "blockRedstoneMechanism", "blockDestruction", "entitySpawnTime", "entitySpawnPointTime"
+            "blockRedstoneMechanism", "allowBlockDestruction", "entitySpawnTime", "entitySpawnPointTime"
     );
 
     private static final List<String> ADD_COMMANDS = Arrays.asList(
@@ -35,7 +35,7 @@ public class GuardCoreTabCompleter implements TabCompleter {
     private static final List<String> INFO_COMMANDS = Arrays.asList(
             "blockDespawnTime", "blockDespawn", "waterFlow", "lavaFlow",
             "entityLimit", "entitySpawnTime", "blockRedstoneMechanism",
-            "entitySpawnPoint", "disallowedEntity", "disallowedBlock", "blockDestruction"
+            "entitySpawnPoint", "disallowedEntity", "disallowedBlock", "allowBlockDestruction"
     );
 
     private static final List<String> HELP_COMMANDS = Arrays.asList(
@@ -47,7 +47,7 @@ public class GuardCoreTabCompleter implements TabCompleter {
     private static final List<String> BYPASS_TYPES = Arrays.asList(
             "disallowedBlocks",
             "blockDespawn",
-            "blockDestruction",
+            "allowBlockDestruction",
             "waterFlow",
             "lavaFlow"
     );
@@ -235,7 +235,7 @@ public class GuardCoreTabCompleter implements TabCompleter {
             case "waterflow":
             case "lavaflow":
             case "blockredstonemechanism":
-            case "blockdestruction":
+            case "allowblockdestruction":
                 return new ArrayList<>(BOOLEAN_VALUES);
             case "blockdespawntime":
                 return new ArrayList<>(DURATION_EXAMPLES);
