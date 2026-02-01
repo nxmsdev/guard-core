@@ -137,14 +137,14 @@ public class ConfigManager {
 
     // Block Destruction methods
 
-    public boolean isBlockDestructionAllowed(String worldName) {
+    public boolean isBlockDestructionBlocked(String worldName) {
         ensureWorldSection(worldName);
-        return config.getBoolean("worlds." + worldName + ".blockDestruction", true);
+        return config.getBoolean("worlds." + worldName + ".blockDestruction", false);
     }
 
-    public void setBlockDestructionAllowed(String worldName, boolean allowed) {
+    public void setBlockDestructionBlocked(String worldName, boolean blocked) {
         ensureWorldSection(worldName);
-        config.set("worlds." + worldName + ".blockDestruction", allowed);
+        config.set("worlds." + worldName + ".blockDestruction", blocked);
         saveConfig();
     }
 
