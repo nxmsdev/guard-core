@@ -194,4 +194,4 @@ Author: [nxmsdev](https://github.com/nxmsdev)
 
 Website: https://www.nxms.dev
 
-License: [MIT](https://choosealicense.com/licenses/mit/)
+License: [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/legalcode)
